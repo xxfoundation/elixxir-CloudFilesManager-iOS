@@ -1,1 +1,2 @@
-public struct NotImplemented {}
+import Shout
+import CloudFiles

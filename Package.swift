@@ -38,17 +38,14 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "CloudFiles",
-      dependencies: [
-        .target(name: "CloudFilesSFTP"),
-        .target(name: "CloudFilesDrive"),
-        .target(name: "CloudFilesICloud"),
-        .target(name: "CloudFilesDropbox")
-      ]
+      name: "CloudFiles"
     ),
     .target(
       name: "CloudFilesSFTP",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "Shout",
           package: "Shout"
@@ -64,6 +61,9 @@ let package = Package(
     .target(
       name: "CloudFilesICloud",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "FilesProvider",
           package: "FileProvider"
@@ -79,6 +79,9 @@ let package = Package(
     .target(
       name: "CloudFilesDropbox",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "SwiftyDropbox",
           package: "SwiftyDropbox"
@@ -94,6 +97,9 @@ let package = Package(
     .target(
       name: "CloudFilesDrive",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "GoogleSignIn",
           package: "GoogleSignIn-iOS"
