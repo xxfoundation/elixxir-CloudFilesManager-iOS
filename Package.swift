@@ -2,40 +2,16 @@
 
 import PackageDescription
 
-let swiftSettings: [SwiftSetting] = [
-  .unsafeFlags(
-    [
-      "-Xfrontend",
-      "-debug-time-function-bodies",
-      "-Xfrontend",
-      "-debug-time-expression-type-checking",
-    ],
-    .when(configuration: .debug)
-  ),
-]
-
 let package = Package(
-  name: "XXMCloudProviders",
+  name: "CloudFiles",
   defaultLocalization: "en",
   platforms: [
     .iOS(.v14),
   ],
   products: [
     .library(
-      name: "SFTPFeature",
-      targets: ["SFTPFeature"]
-    ),
-    .library(
-      name: "DriveFeature",
-      targets: ["DriveFeature"]
-    ),
-    .library(
-      name: "ICloudFeature",
-      targets: ["ICloudFeature"]
-    ),
-    .library(
-      name: "DropboxFeature",
-      targets: ["DropboxFeature"]
+      name: "CloudFiles",
+      targets: ["CloudFiles"]
     )
   ],
   dependencies: [
@@ -62,65 +38,68 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "SFTPFeature",
+      name: "CloudFiles"
+    ),
+    .target(
+      name: "CloudFilesSFTP",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "Shout",
           package: "Shout"
         )
-      ],
-      swiftSettings: swiftSettings
+      ]
     ),
     .testTarget(
-      name: "SFTPFeatureTests",
+      name: "CloudFilesSFTPTests",
       dependencies: [
-        .target(
-          name: "SFTPFeature"
-        )
-      ],
-      swiftSettings: swiftSettings
+        .target(name: "CloudFilesSFTP")
+      ]
     ),
     .target(
-      name: "ICloudFeature",
+      name: "CloudFilesICloud",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "FilesProvider",
           package: "FileProvider"
         )
-      ],
-      swiftSettings: swiftSettings
+      ]
     ),
     .testTarget(
-      name: "ICloudFeatureTests",
+      name: "CloudFilesICloudTests",
       dependencies: [
-        .target(
-          name: "ICloudFeature"
-        )
-      ],
-      swiftSettings: swiftSettings
+        .target(name: "CloudFilesICloud")
+      ]
     ),
     .target(
-      name: "DropboxFeature",
+      name: "CloudFilesDropbox",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "SwiftyDropbox",
           package: "SwiftyDropbox"
         )
-      ],
-      swiftSettings: swiftSettings
+      ]
     ),
     .testTarget(
-      name: "DropboxFeatureTests",
+      name: "CloudFilesDropboxTests",
       dependencies: [
-        .target(
-          name: "DropboxFeature"
-        )
-      ],
-      swiftSettings: swiftSettings
+        .target(name: "CloudFilesDropbox")
+      ]
     ),
     .target(
-      name: "DriveFeature",
+      name: "CloudFilesDrive",
       dependencies: [
+        .target(
+          name: "CloudFiles"
+        ),
         .product(
           name: "GoogleSignIn",
           package: "GoogleSignIn-iOS"
@@ -129,17 +108,13 @@ let package = Package(
           name: "GoogleAPIClientForREST_Drive",
           package: "google-api-objectivec-client-for-rest"
         )
-      ],
-      swiftSettings: swiftSettings
+      ]
     ),
     .testTarget(
-      name: "DriveFeatureTests",
+      name: "CloudFilesDriveTests",
       dependencies: [
-        .target(
-          name: "DriveFeature"
-        )
-      ],
-      swiftSettings: swiftSettings
+        .target(name: "CloudFilesDrive")
+      ]
     )
   ]
 )
