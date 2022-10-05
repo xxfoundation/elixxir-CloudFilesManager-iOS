@@ -1,11 +1,13 @@
-import Foundation
-
 public struct CloudFilesManager {
-  var link: LinkService
+  public var link: LinkService
+
+  public init(link: LinkService) {
+    self.link = link
+  }
 }
 
 extension CloudFilesManager {
-  static let unimplemented = CloudFilesManager(
+  public static let unimplemented = CloudFilesManager(
     link: .unimplemented
   )
 }

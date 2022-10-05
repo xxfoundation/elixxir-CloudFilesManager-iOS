@@ -4,7 +4,7 @@ import GoogleSignIn
 import GoogleAPIClientForREST_Drive
 
 extension LinkService {
-  static func live(_ controller: UIViewController) -> LinkService {
+  public static func drive(_ controller: UIViewController) -> LinkService {
     LinkService {
       let service = GTLRDriveService()
       service.apiKey = "[xxxxxxxxx]"

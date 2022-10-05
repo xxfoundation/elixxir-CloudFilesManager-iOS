@@ -3,7 +3,7 @@ import CloudFiles
 import SwiftyDropbox
 
 extension LinkService {
-  static func live(_ controller: UIViewController) -> LinkService {
+  public static func dropbox(_ controller: UIViewController) -> LinkService {
     LinkService {
       DropboxClientsManager.setupWithAppKey("[xxxxxxxxx]")
       let scopeRequest = ScopeRequest(
@@ -17,7 +17,7 @@ extension LinkService {
       )
       DropboxClientsManager.authorizeFromControllerV2(
         UIApplication.shared,
-        controller: nil,
+        controller: controller,
         loadingStatusDelegate: nil,
         openURL: { (url: URL) -> Void in
           UIApplication.shared.open(url, options: [:], completionHandler: nil)

@@ -1,7 +1,7 @@
 public struct LinkService {
-  var run: () throws -> Void
+  public var run: () throws -> Void
 
-  func callAsFunction() throws {
+  public func callAsFunction() throws {
     try run()
   }
 
