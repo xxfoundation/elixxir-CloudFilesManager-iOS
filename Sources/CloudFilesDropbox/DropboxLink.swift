@@ -2,9 +2,9 @@ import UIKit
 import CloudFiles
 import SwiftyDropbox
 
-extension LinkService {
-  public static func dropbox(_ controller: UIViewController) -> LinkService {
-    LinkService {
+extension Link {
+  public static func dropbox(_ controller: UIViewController) -> Link {
+    Link {
       DropboxClientsManager.setupWithAppKey("[xxxxxxxxx]")
       let scopeRequest = ScopeRequest(
         scopeType: .user,

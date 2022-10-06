@@ -1,4 +1,4 @@
-public struct LinkService {
+public struct Unlink {
   public var run: () throws -> Void
 
   public func callAsFunction() throws {
@@ -10,8 +10,8 @@ public struct LinkService {
   }
 }
 
-extension LinkService {
-  static let unimplemented = LinkService {
+extension Unlink {
+  public static let unimplemented = Unlink {
     fatalError()
   }
 }

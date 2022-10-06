@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "CloudFiles",
+  name: "xxm-cloud-providers",
   defaultLocalization: "en",
   platforms: [
     .iOS(.v14),
