@@ -1,28 +1,18 @@
 import UIKit
 import CloudFiles
-import SwiftyDropbox
 
 extension Link {
-  public static func dropbox(_ controller: UIViewController) -> Link {
+  public static func dropbox(
+    client: DropboxClient = .live,
+    appKey: String,
+    controller: UIViewController,
+    application: UIApplication = .shared
+  ) -> Link {
     Link {
-      DropboxClientsManager.setupWithAppKey("[xxxxxxxxx]")
-      let scopeRequest = ScopeRequest(
-        scopeType: .user,
-        scopes: [
-          "files.content.read",
-          "files.content.write",
-          "files.metadata.read"
-        ],
-        includeGrantedScopes: false
-      )
-      DropboxClientsManager.authorizeFromControllerV2(
-        UIApplication.shared,
+      client.link(
+        appKey: appKey,
         controller: controller,
-        loadingStatusDelegate: nil,
-        openURL: { (url: URL) -> Void in
-          UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        },
-        scopeRequest: scopeRequest
+        application: application
       )
     }
   }

@@ -1,10 +1,9 @@
 import CloudFiles
-import SwiftyDropbox
 
 extension Unlink {
-  public static func dropbox() -> Unlink {
+  public static func dropbox(client: DropboxClient = .live) -> Unlink {
     Unlink {
-      DropboxClientsManager.unlinkClients()
+      client.unlink()
     }
   }
 }

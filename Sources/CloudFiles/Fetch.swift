@@ -1,15 +1,28 @@
 import Foundation
 
-public typealias FetchResult = (Result<Data?, Error>) -> Void
-
 public struct Fetch {
-  public var run: (@escaping FetchResult) throws -> Void
+  public struct Metadata {
+    public var size: Float
+    public var lastModified: Date?
 
-  public func callAsFunction(_ closure: @escaping FetchResult) throws {
+    public init(
+      size: Float,
+      lastModified: Date?
+    ) {
+      self.size = size
+      self.lastModified = lastModified
+    }
+  }
+
+  public typealias Completion = (Result<Metadata?, Error>) -> Void
+
+  public var run: (@escaping Completion) throws -> Void
+
+  public func callAsFunction(_ closure: @escaping Completion) throws {
     try run(closure)
   }
 
-  public init(run: @escaping (@escaping FetchResult) throws -> Void) {
+  public init(run: @escaping (@escaping Completion) throws -> Void) {
     self.run = run
   }
 }

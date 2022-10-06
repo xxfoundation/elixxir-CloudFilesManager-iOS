@@ -1,10 +1,9 @@
 import CloudFiles
-import SwiftyDropbox
 
 extension IsLinked {
-  public static func dropbox() -> IsLinked {
+  public static func dropbox(client: DropboxClient = .live) -> IsLinked {
     IsLinked {
-      DropboxClientsManager.authorizedClient != nil
+      client.isLinked()
     }
   }
 }

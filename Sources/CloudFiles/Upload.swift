@@ -1,18 +1,28 @@
 import Foundation
 
-public typealias UploadResult = (Result<Void, Error>) -> Void
-
 public struct Upload {
-  public var run: (Data, @escaping UploadResult) throws -> Void
+  public struct Metadata {
+    public var size: Float
+    public var lastModified: Date?
 
-  public func callAsFunction(
-    _ data: Data,
-    _ result: @escaping UploadResult
-  ) throws {
+    public init(
+      size: Float,
+      lastModified: Date?
+    ) {
+      self.size = size
+      self.lastModified = lastModified
+    }
+  }
+
+  public typealias Completion = (Result<Metadata, Error>) -> Void
+
+  public var run: (Data, @escaping Completion) throws -> Void
+
+  public func callAsFunction(_ data: Data, _ result: @escaping Completion) throws {
     try run(data, result)
   }
 
-  public init(run: @escaping (Data, @escaping UploadResult) throws -> Void) {
+  public init(run: @escaping (Data, @escaping Completion) throws -> Void) {
     self.run = run
   }
 }

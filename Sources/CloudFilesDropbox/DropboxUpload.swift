@@ -1,52 +1,47 @@
-import Foundation
 import CloudFiles
-import SwiftyDropbox
 
 extension Upload {
-  public static func dropbox() -> Upload {
+  public static func dropbox(client: DropboxClient = .live) -> Upload {
     Upload { data, completion in
-      guard let client = DropboxClientsManager.authorizedClient else { fatalError() }
-      client
-        .files
-        .listFolder(path: "/backup")
-        .response { result, error in
-          if let error {
-            completion(.failure(NSError(domain: error.description, code: 0)))
-            return
-          }
-          let uploadInternal: (Data) -> Void = { file in
-            client
-              .files
-              .upload(path: "/backup/backup.xxm", mode: .overwrite, input: file)
-              .response { response, error in
-                if let error {
-                  completion(.failure(NSError(domain: error.description, code: 3)))
-                  return
-                }
-
-                if let response {
-                  print(">>> Size: \(Float(response.size))")
-                  print(">>> Modified: \(response.serverModified)")
-                  print(">>> Path: \(String(describing: response.pathLower))")
-                }
+      client.listFolder(path: "/backup") { listFolderResult in
+        switch listFolderResult {
+        case .success(let listFolderSuccess):
+          if !listFolderSuccess.entries.isEmpty {
+            client.upload(path: "/backup/backup.xxm", input: data) { uploadResult in
+              switch uploadResult {
+              case .success(let fileMetadata):
+                completion(.success(.init(
+                  size: Float(fileMetadata.size),
+                  lastModified: fileMetadata.serverModified
+                )))
+              case .failure(let error):
+                completion(.failure(error))
               }
-          }
-          guard result != nil else {
-            client.files
-              .createFolderV2(path: "/backup")
-              .response { _, error in
-                if let error {
-                  completion(.failure(NSError(domain: error.description, code: 1)))
-                  return
+            }
+          } else {
+            client.createFolder(path: "/backup") { createFolderResult in
+              switch createFolderResult {
+              case .success:
+                client.upload(path: "/backup/backup.xxm", input: data) { uploadResult in
+                  switch uploadResult {
+                  case .success(let fileMetadata):
+                    completion(.success(.init(
+                      size: Float(fileMetadata.size),
+                      lastModified: fileMetadata.serverModified
+                    )))
+                  case .failure(let error):
+                    completion(.failure(error))
+                  }
                 }
-
-                uploadInternal(data)
+              case .failure(let error):
+                completion(.failure(error))
               }
-            return
+            }
           }
-
-          uploadInternal(data)
+        case .failure(let error):
+          completion(.failure(error))
         }
+      }
     }
   }
 }

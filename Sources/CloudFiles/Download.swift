@@ -1,15 +1,15 @@
 import Foundation
 
-public typealias DownloadResult = (Result<Data?, Error>) -> Void
-
 public struct Download {
-  public var run: (@escaping DownloadResult) throws -> Void
+  public typealias Completion = (Result<Data?, Error>) -> Void
 
-  public func callAsFunction(_ closure: @escaping DownloadResult) throws {
+  public var run: (@escaping Completion) throws -> Void
+
+  public func callAsFunction(_ closure: @escaping Completion) throws {
     try run(closure)
   }
 
-  public init(run: @escaping (@escaping DownloadResult) throws -> Void) {
+  public init(run: @escaping (@escaping Completion) throws -> Void) {
     self.run = run
   }
 }
