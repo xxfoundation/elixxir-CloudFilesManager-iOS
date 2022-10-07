@@ -3,7 +3,7 @@ import CloudFiles
 
 extension Link {
   public static func drive(
-    client: DriveClient = .live,
+    client: DriveClient = .live(),
     apiKey: String,
     clientId: String,
     controller: UIViewController
@@ -15,10 +15,9 @@ extension Link {
         controller: controller,
         completion: { signInResult in
           switch signInResult {
-          case .success(let userAndService):
+          case .success(let user):
             client.authorize(
-              user: userAndService.0,
-              service: userAndService.1,
+              user: user,
               controller: controller) { authorizeResult in
                 switch authorizeResult {
                 case .success:
