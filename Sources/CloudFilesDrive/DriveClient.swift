@@ -10,7 +10,7 @@ public struct DriveClient {
   typealias ListFolderCompletion = (Result<String, Swift.Error>) -> Void
   typealias SignInCompletion = (Result<(GIDGoogleUser, GTLRDriveService), Swift.Error>) -> Void
 
-  enum DriveClientError: Swift.Error {
+  public enum DriveClientError: Swift.Error {
     case unknown
     case missingScopes
     case fetch(Error)

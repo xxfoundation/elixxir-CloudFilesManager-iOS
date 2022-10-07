@@ -8,7 +8,7 @@ public struct DropboxClient {
   typealias ListFolderCompletion = (Result<Files.ListFolderResult, Swift.Error>) -> Void
   typealias CreateFolderCompletion = (Result<Files.CreateFolderResult, Swift.Error>) -> Void
 
-  enum Error: Swift.Error {
+  public enum Error: Swift.Error {
     case unknown
     case noMetadata
     case unauthorized
