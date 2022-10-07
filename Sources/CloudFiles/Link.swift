@@ -1,19 +1,21 @@
 import UIKit
 
 public struct Link {
-  public var run: () throws -> Void
+  public typealias Completion = (Result<Void, Error>) -> Void
 
-  public func callAsFunction() throws {
-    try run()
+  public var run: (@escaping Completion) throws -> Void
+
+  public func callAsFunction(_ closure: @escaping Completion) throws {
+    try run(closure)
   }
 
-  public init(run: @escaping () throws -> Void) {
+  public init(run: @escaping (@escaping Completion) throws -> Void) {
     self.run = run
   }
 }
 
 extension Link {
-  public static let unimplemented = Link {
+  public static let unimplemented = Link { _ in
     fatalError()
   }
 }

@@ -8,12 +8,13 @@ extension Link {
     controller: UIViewController,
     application: UIApplication = .shared
   ) -> Link {
-    Link {
+    Link { completion in
       client.link(
         appKey: appKey,
         controller: controller,
         application: application
       )
+      completion(.success(()))
     }
   }
 }
