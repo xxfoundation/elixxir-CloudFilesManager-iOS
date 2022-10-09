@@ -151,16 +151,17 @@ extension DropboxClient {
 
 extension CloudFilesManager {
   public static func dropbox(
-    appKey: String
+    appKey: String,
+    path: String
   ) -> CloudFilesManager {
     CloudFilesManager(
       link: .dropbox(appKey: appKey),
-      fetch: .dropbox(path: "/backup/backup.xxm"),
-      upload: .dropbox(path: "/backup/backup.xxm"),
+      fetch: .dropbox(path: path),
+      upload: .dropbox(path: path),
       unlink: .dropbox(),
       enable: .unimplemented,
       disable: .unimplemented,
-      download: .dropbox(path: "/backup/backup.xxm"),
+      download: .dropbox(path: path),
       isLinked: .dropbox(),
       isEnabled: .unimplemented
     )
