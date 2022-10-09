@@ -21,6 +21,7 @@ public struct DriveClient {
   }
 
   var _signOut: () -> Void
+  var _isLinked: () -> Bool
   var _fetch: (String, @escaping FetchCompletion) -> Void
   var _listFiles: (String, @escaping ListFilesCompletion) -> Void
   var _listFolder: (String, @escaping ListFolderCompletion) -> Void
@@ -29,6 +30,10 @@ public struct DriveClient {
 
   func signOut() {
     _signOut()
+  }
+
+  func isLinked() -> Bool {
+    _isLinked()
   }
 
   func listFolder(
@@ -76,6 +81,9 @@ extension DriveClient {
     return DriveClient(
       _signOut: {
         GIDSignIn.sharedInstance.signOut()
+      },
+      _isLinked: {
+        GIDSignIn.sharedInstance.currentUser != nil
       },
       _fetch: { fileName, completion in
         let query = GTLRDriveQuery_FilesList.query()
@@ -171,6 +179,28 @@ extension DriveClient {
           completion(.success(()))
         }
       }
+    )
+  }
+}
+
+extension CloudFilesManager {
+  public static func drive(
+    apikey: String,
+    clientId: String
+  ) -> CloudFilesManager {
+    CloudFilesManager(
+      link: .drive(
+        apiKey: apikey,
+        clientId: clientId
+      ),
+      fetch: .drive(),
+      upload: .unimplemented,
+      unlink: .drive(),
+      enable: .unimplemented,
+      disable: .unimplemented,
+      download: .unimplemented,
+      isLinked: .drive(),
+      isEnabled: .unimplemented
     )
   }
 }

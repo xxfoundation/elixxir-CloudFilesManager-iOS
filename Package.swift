@@ -5,14 +5,13 @@ import PackageDescription
 let package = Package(
   name: "xxm-cloud-providers",
   defaultLocalization: "en",
-  platforms: [
-    .iOS(.v14),
-  ],
+  platforms: [.iOS(.v14),],
   products: [
-    .library(
-      name: "CloudFiles",
-      targets: ["CloudFiles"]
-    )
+    .library(name: "CloudFiles", targets: ["CloudFiles"]),
+    .library(name: "CloudFilesSFTP", targets: ["CloudFilesSFTP"]),
+    .library(name: "CloudFilesDrive", targets: ["CloudFilesDrive"]),
+    .library(name: "CloudFilesICloud", targets: ["CloudFilesICloud"]),
+    .library(name: "CloudFilesDropbox", targets: ["CloudFilesDropbox"])
   ],
   dependencies: [
     .package(
@@ -21,7 +20,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/dropbox/SwiftyDropbox.git",
-      .upToNextMajor(from: "8.2.1")
+      .upToNextMajor(from: "9.0.0")
     ),
     .package(
       url: "https://github.com/amosavian/FileProvider.git",
@@ -33,7 +32,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/google-api-objectivec-client-for-rest",
-      .upToNextMajor(from: "1.6.0")
+      .upToNextMajor(from: "2.0.1")
     ),
   ],
   targets: [

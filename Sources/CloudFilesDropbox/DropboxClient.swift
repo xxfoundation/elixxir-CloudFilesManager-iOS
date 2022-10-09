@@ -1,4 +1,5 @@
 import UIKit
+import CloudFiles
 import SwiftyDropbox
 
 public struct DropboxClient {
@@ -36,27 +37,47 @@ public struct DropboxClient {
     _isLinked()
   }
 
-  func fetch(path: String, completion: @escaping FetchCompletion) {
+  func fetch(
+    path: String,
+    completion: @escaping FetchCompletion
+  ) {
     _fetch(path, completion)
   }
 
-  func download(path: String, completion: @escaping DownloadCompletion) {
+  func download(
+    path: String,
+    completion: @escaping DownloadCompletion
+  ) {
     _download(path, completion)
   }
 
-  func listFolder(path: String, completion: @escaping ListFolderCompletion) {
+  func listFolder(
+    path: String,
+    completion: @escaping ListFolderCompletion
+  ) {
     _listFolder(path, completion)
   }
 
-  func createFolder(path: String, completion: @escaping CreateFolderCompletion) {
+  func createFolder(
+    path: String,
+    completion: @escaping CreateFolderCompletion
+  ) {
     _createFolder(path, completion)
   }
 
-  func upload(path: String, input: Data, completion: @escaping UploadCompletion) {
+  func upload(
+    path: String,
+    input: Data,
+    completion: @escaping UploadCompletion
+  ) {
     _upload(path, input, completion)
   }
 
-  func link(appKey: String, controller: UIViewController, application: UIApplication) {
+  func link(
+    appKey: String,
+    controller: UIViewController,
+    application: UIApplication
+  ) {
     _link(appKey, controller, application)
   }
 }
@@ -87,16 +108,9 @@ extension DropboxClient {
       }
     },
     _link: { appKey, controller, application in
-      DropboxClientsManager.setupWithAppKey(appKey)
-      let scopeRequest = ScopeRequest(
-        scopeType: .user,
-        scopes: [
-          "files.content.read",
-          "files.content.write",
-          "files.metadata.read"
-        ],
-        includeGrantedScopes: false
-      )
+      if DropboxOAuthManager.sharedOAuthManager == nil {
+        DropboxClientsManager.setupWithAppKey(appKey)
+      }
       DropboxClientsManager.authorizeFromControllerV2(
         application,
         controller: controller,
@@ -104,7 +118,11 @@ extension DropboxClient {
         openURL: { (url: URL) -> Void in
           application.open(url, options: [:], completionHandler: nil)
         },
-        scopeRequest: scopeRequest
+        scopeRequest: ScopeRequest(
+          scopeType: .user,
+          scopes: [],
+          includeGrantedScopes: true
+        )
       )
     },
     _download: { path, completion in
@@ -176,4 +194,22 @@ extension DropboxClient {
       }
     }
   )
+}
+
+extension CloudFilesManager {
+  public static func dropbox(
+    appKey: String
+  ) -> CloudFilesManager {
+    CloudFilesManager(
+      link: .dropbox(appKey: appKey),
+      fetch: .dropbox(),
+      upload: .dropbox(),
+      unlink: .dropbox(),
+      enable: .unimplemented,
+      disable: .unimplemented,
+      download: .dropbox(),
+      isLinked: .dropbox(),
+      isEnabled: .unimplemented
+    )
+  }
 }

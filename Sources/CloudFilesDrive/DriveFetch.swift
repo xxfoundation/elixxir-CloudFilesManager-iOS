@@ -1,7 +1,9 @@
 import CloudFiles
 
 extension Fetch {
-  public static func drive(client: DriveClient = .live()) -> Fetch {
+  public static func drive(
+    client: DriveClient = .live()
+  ) -> Fetch {
     Fetch { completion in
       client.listFolder(name: "backup") { getFolderResult in
         switch getFolderResult {

@@ -5,10 +5,9 @@ extension Link {
   public static func drive(
     client: DriveClient = .live(),
     apiKey: String,
-    clientId: String,
-    controller: UIViewController
+    clientId: String
   ) -> Link {
-    Link { completion in
+    Link { controller, completion in
       client.signIn(
         apiKey: apiKey,
         clientId: clientId,
@@ -18,7 +17,8 @@ extension Link {
           case .success(let user):
             client.authorize(
               user: user,
-              controller: controller) { authorizeResult in
+              controller: controller
+            ) { authorizeResult in
                 switch authorizeResult {
                 case .success:
                   completion(.success(()))

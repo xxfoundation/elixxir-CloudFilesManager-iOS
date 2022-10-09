@@ -31,17 +31,3 @@ public struct CloudFilesManager {
     self.isEnabled = isEnabled
   }
 }
-
-extension CloudFilesManager {
-  public static let unimplemented = CloudFilesManager(
-    link: .unimplemented,
-    fetch: .unimplemented,
-    upload: .unimplemented,
-    unlink: .unimplemented,
-    enable: .unimplemented,
-    disable: .unimplemented,
-    download: .unimplemented,
-    isLinked: .unimplemented,
-    isEnabled: .unimplemented
-  )
-}
