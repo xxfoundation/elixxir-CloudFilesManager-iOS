@@ -5,10 +5,10 @@ import GoogleAPIClientForREST_Drive
 
 public struct DriveClient {
   typealias FetchCompletion = (Result<Fetch.Metadata, Swift.Error>) -> Void
+  typealias SignInCompletion = (Result<Void, Swift.Error>) -> Void
   typealias AuthorizeCompletion = (Result<Void, Swift.Error>) -> Void
   typealias ListFilesCompletion = (Result<Void, Swift.Error>) -> Void
   typealias ListFolderCompletion = (Result<String, Swift.Error>) -> Void
-  typealias SignInCompletion = (Result<(GIDGoogleUser), Swift.Error>) -> Void
 
   public enum DriveClientError: Swift.Error {
     case unknown
@@ -20,16 +20,16 @@ public struct DriveClient {
     case listFolder(Error)
   }
 
-  var _signOut: () -> Void
+  var _unlink: () -> Void
   var _isLinked: () -> Bool
   var _fetch: (String, @escaping FetchCompletion) -> Void
   var _listFiles: (String, @escaping ListFilesCompletion) -> Void
   var _listFolder: (String, @escaping ListFolderCompletion) -> Void
+  var _authorize: (UIViewController, @escaping AuthorizeCompletion) -> Void
   var _signIn: (String, String, UIViewController, @escaping SignInCompletion) -> Void
-  var _authorize: (GIDGoogleUser, UIViewController, @escaping AuthorizeCompletion) -> Void
 
-  func signOut() {
-    _signOut()
+  func unlink() {
+    _unlink()
   }
 
   func isLinked() -> Bool {
@@ -58,11 +58,10 @@ public struct DriveClient {
   }
 
   func authorize(
-    user: GIDGoogleUser,
     controller: UIViewController,
     completion: @escaping AuthorizeCompletion
   ) {
-    _authorize(user, controller, completion)
+    _authorize(controller, completion)
   }
 
   func signIn(
@@ -79,11 +78,17 @@ extension DriveClient {
   public static func live() -> DriveClient {
     let service = GTLRDriveService()
     return DriveClient(
-      _signOut: {
+      _unlink: {
         GIDSignIn.sharedInstance.signOut()
       },
       _isLinked: {
-        GIDSignIn.sharedInstance.currentUser != nil
+        let fileScope = "https://www.googleapis.com/auth/drive.file"
+        let appDataScope = "https://www.googleapis.com/auth/drive.appdata"
+        guard let currentUser = GIDSignIn.sharedInstance.currentUser,
+              let grantedScopes = currentUser.grantedScopes,
+              grantedScopes.contains(fileScope),
+              grantedScopes.contains(appDataScope) else { return false }
+        return true
       },
       _fetch: { fileName, completion in
         let query = GTLRDriveQuery_FilesList.query()
@@ -139,26 +144,9 @@ extension DriveClient {
           completion(.success(folderId))
         }
       },
-      _signIn: { apiKey, clientId, controller, completion in
-        service.apiKey = apiKey
-        GIDSignIn.sharedInstance.signIn(
-          with: .init(clientID: clientId),
-          presenting: controller,
-          callback: { user, error in
-            if let error {
-              completion(.failure(DriveClientError.signIn(error)))
-              return
-            }
-            guard let user else {
-              completion(.failure(DriveClientError.unknown))
-              return
-            }
-            completion(.success(user))
-          }
-        )
-      },
-      _authorize: { user, controller, completion in
-        guard let scopes = user.grantedScopes else {
+      _authorize: { controller, completion in
+        guard let user = GIDSignIn.sharedInstance.currentUser,
+              let scopes = user.grantedScopes else {
           completion(.failure(DriveClientError.missingScopes))
           return
         }
@@ -178,6 +166,24 @@ extension DriveClient {
         } else {
           completion(.success(()))
         }
+      },
+      _signIn: { apiKey, clientId, controller, completion in
+        service.apiKey = apiKey
+        GIDSignIn.sharedInstance.signIn(
+          with: .init(clientID: clientId),
+          presenting: controller,
+          callback: { user, error in
+            if let error {
+              completion(.failure(DriveClientError.signIn(error)))
+              return
+            }
+            guard user != nil else {
+              completion(.failure(DriveClientError.unknown))
+              return
+            }
+            completion(.success(()))
+          }
+        )
       }
     )
   }
