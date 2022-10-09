@@ -5,7 +5,9 @@ extension Unlink {
   public static func drive(
     client: DriveClient = .live
   ) -> Unlink {
-    Unlink { client.unlink() }
+    Unlink {
+      client.unlink()
+    }
   }
 }
 
@@ -69,8 +71,12 @@ extension Fetch {
 }
 
 extension IsLinked {
-  public static func drive(client: DriveClient = .live) -> IsLinked {
-    IsLinked { client.isLinked() }
+  public static func drive(
+    client: DriveClient = .live
+  ) -> IsLinked {
+    IsLinked {
+      client.isLinked()
+    }
   }
 }
 

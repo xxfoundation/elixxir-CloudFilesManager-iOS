@@ -18,7 +18,9 @@ extension Link {
 }
 
 extension IsLinked {
-  public static func dropbox(client: DropboxClient = .live) -> IsLinked {
+  public static func dropbox(
+    client: DropboxClient = .live
+  ) -> IsLinked {
     IsLinked {
       client.isLinked()
     }
@@ -26,8 +28,12 @@ extension IsLinked {
 }
 
 extension Unlink {
-  public static func dropbox(client: DropboxClient = .live) -> Unlink {
-    Unlink { client.unlink() }
+  public static func dropbox(
+    client: DropboxClient = .live
+  ) -> Unlink {
+    Unlink {
+      client.unlink()
+    }
   }
 }
 
@@ -82,6 +88,11 @@ extension Download {
     path: String,
     client: DropboxClient = .live
   ) -> Download {
-    Download { client.download(path: path, completion: $0) }
+    Download {
+      client.download(
+        path: path,
+        completion: $0
+      )
+    }
   }
 }
