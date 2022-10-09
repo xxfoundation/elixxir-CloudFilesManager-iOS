@@ -11,22 +11,42 @@ extension Unlink {
 
 extension Download {
   public static func drive(
+    fileName: String,
     client: DriveClient = .live
   ) -> Download {
-    Download { _ in
-      // TODO
+    Download { completion in
+      client.fetch(
+        fileName: fileName,
+        completion: { fetchResult in
+          switch fetchResult {
+          case .success(let metadata):
+            if let metadata, let id = metadata.id {
+              client.download(fileId: id) {
+                switch $0 {
+                case .success(let data):
+                  completion(.success(data))
+                case .failure(let error):
+                  completion(.failure(error))
+                }
+              }
+            }
+          case .failure(let error):
+            completion(.failure(error))
+          }
+        }
+      )
     }
   }
 }
 
 extension Upload {
   public static func drive(
-    path: String,
+    fileName: String,
     client: DriveClient = .live
   ) -> Upload {
     Upload { data, completion in
       client.upload(
-        path: path,
+        fileName: fileName,
         input: data,
         completion: completion
       )
@@ -39,10 +59,10 @@ extension Fetch {
     client: DriveClient = .live,
     fileName: String
   ) -> Fetch {
-    Fetch { completion in
+    Fetch {
       client.fetch(
         fileName: fileName,
-        completion: completion
+        completion: $0
       )
     }
   }

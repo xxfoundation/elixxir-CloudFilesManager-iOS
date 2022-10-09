@@ -2,13 +2,16 @@ import Foundation
 
 public struct Fetch {
   public struct Metadata: Equatable {
+    public var id: String?
     public var size: Float
-    public var lastModified: Date?
+    public var lastModified: Date
 
     public init(
+      id: String? = nil,
       size: Float,
-      lastModified: Date?
+      lastModified: Date
     ) {
+      self.id = id
       self.size = size
       self.lastModified = lastModified
     }

@@ -5,6 +5,7 @@ import GoogleAPIClientForREST_Drive
 
 public struct DriveClient {
   typealias SignInCompletion = (Result<Void, Swift.Error>) -> Void
+  typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias AuthorizeCompletion = (Result<Void, Swift.Error>) -> Void
   typealias FetchCompletion = (Result<Fetch.Metadata?, Swift.Error>) -> Void
   typealias UploadCompletion = (Result<Upload.Metadata, Swift.Error>) -> Void
@@ -15,6 +16,7 @@ public struct DriveClient {
     case fetch(Error)
     case signIn(Error)
     case upload(Error)
+    case download(Error)
     case authorize(Error)
   }
 
@@ -23,6 +25,7 @@ public struct DriveClient {
   var _unlink: () -> Void
   var _isLinked: () -> Bool
   var _fetch: (String, @escaping FetchCompletion) -> Void
+  var _download: (String, @escaping DownloadCompletion) -> Void
   var _upload: (String, Data, @escaping UploadCompletion) -> Void
   var _authorize: (UIViewController, @escaping AuthorizeCompletion) -> Void
   var _signIn: (String, String, UIViewController, @escaping SignInCompletion) -> Void
@@ -35,12 +38,19 @@ public struct DriveClient {
     _isLinked()
   }
 
+  func download(
+    fileId: String,
+    completion: @escaping DownloadCompletion
+  ) {
+    _download(fileId, completion)
+  }
+
   func upload(
-    path: String,
+    fileName: String,
     input: Data,
     completion: @escaping UploadCompletion
   ) {
-    _upload(path, input, completion)
+    _upload(fileName, input, completion)
   }
 
   func fetch(
@@ -83,7 +93,7 @@ extension DriveClient {
       let query = GTLRDriveQuery_FilesList.query()
       query.q = "name = '\(fileName)'"
       query.spaces = "appDataFolder"
-      query.fields = "files(size, modifiedTime)"
+      query.fields = "files(id, size, modifiedTime)"
       service.executeQuery(query) { _, result, error in
         if let error {
           if (error as NSError).domain == kGTLRErrorObjectDomain, (error as NSError).code == 404 {
@@ -94,19 +104,36 @@ extension DriveClient {
           return
         }
         guard let metadata = (result as? GTLRDrive_FileList)?.files?.first,
-              let size = metadata.size?.floatValue else {
+              let date = metadata.modifiedTime?.date,
+              let size = metadata.size?.floatValue,
+              let id = metadata.identifier else {
           completion(.failure(DriveClientError.unknown))
           return
         }
         completion(.success(.init(
+          id: id,
           size: size,
-          lastModified: metadata.modifiedTime?.date
+          lastModified: date
         )))
       }
     },
-    _upload: { path, data, completion in
+    _download: { fileName, completion in
+      let query = GTLRDriveQuery_FilesGet.query(withFileId: "")
+      service.executeQuery(query) { _, result, error in
+        if let error {
+          completion(.failure(DriveClientError.download(error)))
+          return
+        }
+        guard let data = (result as? GTLRDataObject)?.data else {
+          completion(.failure(DriveClientError.unknown))
+          return
+        }
+        completion(.success(data))
+      }
+    },
+    _upload: { fileName, data, completion in
       let file = GTLRDrive_File(json: [
-        "name":"backup.xxm",
+        "name":"\(fileName)",
         "parents": ["appDataFolder"],
         "mimeType": "application/octet-stream"
       ])
@@ -177,19 +204,20 @@ extension DriveClient {
 extension CloudFilesManager {
   public static func drive(
     apiKey: String,
-    clientId: String
+    clientId: String,
+    fileName: String
   ) -> CloudFilesManager {
     CloudFilesManager(
       link: .drive(
         apiKey: apiKey,
         clientId: clientId
       ),
-      fetch: .drive(fileName: "backup.xxm"),
-      upload: .drive(path: "/backup"),
+      fetch: .drive(fileName: fileName),
+      upload: .drive(fileName: fileName),
       unlink: .drive(),
       enable: .unimplemented,
       disable: .unimplemented,
-      download: .drive(),
+      download: .drive(fileName: fileName),
       isLinked: .drive(),
       isEnabled: .unimplemented
     )

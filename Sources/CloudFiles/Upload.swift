@@ -3,11 +3,11 @@ import Foundation
 public struct Upload {
   public struct Metadata {
     public var size: Float
-    public var lastModified: Date?
+    public var lastModified: Date
 
     public init(
       size: Float,
-      lastModified: Date?
+      lastModified: Date
     ) {
       self.size = size
       self.lastModified = lastModified
