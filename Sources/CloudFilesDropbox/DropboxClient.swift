@@ -3,21 +3,16 @@ import CloudFiles
 import SwiftyDropbox
 
 public struct DropboxClient {
-  typealias DownloadCompletion = (Result<Data, Swift.Error>) -> Void
-  typealias FetchCompletion = (Result<Files.FileMetadata, Swift.Error>) -> Void
+  typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
+  typealias FetchCompletion = (Result<Files.FileMetadata?, Swift.Error>) -> Void
   typealias UploadCompletion = (Result<Files.FileMetadata, Swift.Error>) -> Void
-  typealias ListFolderCompletion = (Result<Files.ListFolderResult, Swift.Error>) -> Void
-  typealias CreateFolderCompletion = (Result<Files.CreateFolderResult, Swift.Error>) -> Void
 
   public enum Error: Swift.Error {
     case unknown
-    case noMetadata
     case unauthorized
     case fetch(CallError<Files.GetMetadataError>)
     case upload(CallError<Files.UploadError>)
     case download(CallError<Files.DownloadError>)
-    case listFolder(CallError<Files.ListFolderError>)
-    case createFolder(CallError<Files.CreateFolderError>)
   }
 
   var _unlink: () -> Void
@@ -26,8 +21,6 @@ public struct DropboxClient {
   var _link: (String, UIViewController, UIApplication) -> Void
   var _download: (String, @escaping DownloadCompletion) -> Void
   var _upload: (String, Data, @escaping UploadCompletion) -> Void
-  var _listFolder: (String, @escaping ListFolderCompletion) -> Void
-  var _createFolder: (String, @escaping CreateFolderCompletion) -> Void
 
   func unlink() {
     _unlink()
@@ -49,20 +42,6 @@ public struct DropboxClient {
     completion: @escaping DownloadCompletion
   ) {
     _download(path, completion)
-  }
-
-  func listFolder(
-    path: String,
-    completion: @escaping ListFolderCompletion
-  ) {
-    _listFolder(path, completion)
-  }
-
-  func createFolder(
-    path: String,
-    completion: @escaping CreateFolderCompletion
-  ) {
-    _createFolder(path, completion)
   }
 
   func upload(
@@ -97,6 +76,10 @@ extension DropboxClient {
       }
       client.files.getMetadata(path: path).response { response, error in
         if let error {
+          if case .routeError = error {
+            completion(.success(nil))
+            return
+          }
           completion(.failure(Error.fetch(error)))
           return
         }
@@ -104,7 +87,7 @@ extension DropboxClient {
           completion(.success(result))
           return
         }
-        completion(.failure(Error.noMetadata))
+        fatalError("DropboxClient.Fetch brought no results and no errors")
       }
     },
     _link: { appKey, controller, application in
@@ -132,6 +115,10 @@ extension DropboxClient {
       }
       client.files.download(path: path).response { response, error in
         if let error {
+          if case .routeError = error {
+            completion(.success(nil))
+            return
+          }
           completion(.failure(Error.download(error)))
           return
         }
@@ -158,40 +145,6 @@ extension DropboxClient {
         }
         completion(.success(response))
       }
-    },
-    _listFolder: { path, completion in
-      guard let client = DropboxClientsManager.authorizedClient else {
-        completion(.failure(Error.unauthorized))
-        return
-      }
-      client.files.listFolder(path: path).response { result, error in
-        if let error {
-          completion(.failure(Error.listFolder(error)))
-          return
-        }
-        guard let result else {
-          completion(.failure(Error.unknown))
-          return
-        }
-        completion(.success(result))
-      }
-    },
-    _createFolder: { path, completion in
-      guard let client = DropboxClientsManager.authorizedClient else {
-        completion(.failure(Error.unauthorized))
-        return
-      }
-      client.files.createFolderV2(path: path).response { result, error in
-        if let error {
-          completion(.failure(Error.createFolder(error)))
-          return
-        }
-        guard let result else {
-          completion(.failure(Error.unknown))
-          return
-        }
-        completion(.success(result))
-      }
     }
   )
 }
@@ -202,12 +155,12 @@ extension CloudFilesManager {
   ) -> CloudFilesManager {
     CloudFilesManager(
       link: .dropbox(appKey: appKey),
-      fetch: .dropbox(),
-      upload: .dropbox(),
+      fetch: .dropbox(path: "/backup/backup.xxm"),
+      upload: .dropbox(path: "/backup/backup.xxm"),
       unlink: .dropbox(),
       enable: .unimplemented,
       disable: .unimplemented,
-      download: .dropbox(),
+      download: .dropbox(path: "/backup/backup.xxm"),
       isLinked: .dropbox(),
       isEnabled: .unimplemented
     )
