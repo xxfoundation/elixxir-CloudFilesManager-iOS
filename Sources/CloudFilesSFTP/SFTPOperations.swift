@@ -1,8 +1,8 @@
 import CloudFiles
 
 extension Link {
-  public static func iCloud(
-    client: ICloudClient = .live
+  public static func sftp(
+    client: SFTPClient = .live
   ) -> Link {
     Link { _,_ in
       client.link()
@@ -11,8 +11,8 @@ extension Link {
 }
 
 extension IsLinked {
-  public static func iCloud(
-    client: ICloudClient = .live
+  public static func sftp(
+    client: SFTPClient = .live
   ) -> IsLinked {
     IsLinked {
       client.isLinked()
@@ -21,8 +21,8 @@ extension IsLinked {
 }
 
 extension Unlink {
-  public static func iCloud(
-    client: ICloudClient = .live
+  public static func sftp(
+    client: SFTPClient = .live
   ) -> Unlink {
     Unlink {
       client.unlink()
@@ -31,9 +31,9 @@ extension Unlink {
 }
 
 extension Upload {
-  public static func iCloud(
+  public static func sftp(
     fileName: String,
-    client: ICloudClient = .live
+    client: SFTPClient = .live
   ) -> Upload {
     Upload { data, completion in
       client.upload(
@@ -46,9 +46,9 @@ extension Upload {
 }
 
 extension Fetch {
-  public static func iCloud(
+  public static func sftp(
     fileName: String,
-    client: ICloudClient = .live
+    client: SFTPClient = .live
   ) -> Fetch {
     Fetch {
       client.fetch(
@@ -60,9 +60,9 @@ extension Fetch {
 }
 
 extension Download {
-  public static func iCloud(
+  public static func sftp(
     fileName: String,
-    client: ICloudClient = .live
+    client: SFTPClient = .live
   ) -> Download {
     Download {
       client.download(
