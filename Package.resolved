@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/google-api-objectivec-client-for-rest",
       "state" : {
-        "revision" : "3228334d0584cb9174796fecbe628a723be70452",
-        "version" : "1.7.0"
+        "revision" : "0078161fcc2900ca06213a192bdfa5ece8ee58f1",
+        "version" : "2.0.1"
       }
     },
     {
@@ -73,6 +73,15 @@
       }
     },
     {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
+      "state" : {
+        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
+        "version" : "4.2.2"
+      }
+    },
+    {
       "identity" : "libssh2prebuild",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/DimaRU/Libssh2Prebuild.git",
@@ -94,8 +103,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dropbox/SwiftyDropbox.git",
       "state" : {
-        "revision" : "9df3d4997127f1f17ed295e5f373ab676419df08",
-        "version" : "8.3.0"
+        "revision" : "9d6ecda63cacd431f10e3388191621767e571909",
+        "version" : "9.0.0"
       }
     }
   ],

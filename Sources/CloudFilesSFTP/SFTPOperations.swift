@@ -2,10 +2,18 @@ import CloudFiles
 
 extension Link {
   public static func sftp(
+    host: String,
+    username: String,
+    password: String,
     client: SFTPClient = .live
   ) -> Link {
-    Link { _,_ in
-      client.link()
+    Link { _, completion in
+      client.link(
+        host: host,
+        username: username,
+        password: password,
+        completion: completion
+      )
     }
   }
 }

@@ -31,6 +31,10 @@ let package = Package(
       revision: "df5a662293f0ac15eeb4f2fd3ffd0c07b73d0de0"
     ),
     .package(
+      url: "https://github.com/kishikawakatsumi/KeychainAccess",
+      .upToNextMajor(from: "4.2.2")
+    ),
+    .package(
       url: "https://github.com/google/google-api-objectivec-client-for-rest",
       .upToNextMajor(from: "2.0.1")
     ),
@@ -48,6 +52,10 @@ let package = Package(
         .product(
           name: "Shout",
           package: "Shout"
+        ),
+        .product(
+          name: "KeychainAccess",
+          package: "KeychainAccess"
         )
       ]
     ),

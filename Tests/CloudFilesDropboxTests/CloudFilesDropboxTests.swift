@@ -16,33 +16,12 @@ final class CloudFilesDropboxTests: XCTestCase {
 
   override func setUp() {
     sut = .init(
-      _unlink: {
-        self.isLinked = false
-        self.didUnlink = true
-      },
-      _isLinked: {
-        self.didGetLinkState = true
-        return self.isLinked
-      },
-      _fetch: { path, completion in
-        self.didFetchPath = path
-      },
-      _link: { appKey, controller, application in
-        self.didLinkAppKey = appKey
-        self.isLinked = true
-      },
-      _download: { path, completion in
-        self.didDownloadPath = path
-      },
-      _upload: { path, input, completion in
-        self.didUploadPath = path
-      },
-      _listFolder: { path, completion in
-        self.didListPath = path
-      },
-      _createFolder: { path, completion in
-        self.didCreateFolderPath = path
-      }
+      _unlink: {},
+      _isLinked: { false },
+      _fetch: { _,_ in },
+      _link: { _,_,_ in },
+      _download: { _,_ in },
+      _upload: { _,_,_ in }
     )
   }
 
