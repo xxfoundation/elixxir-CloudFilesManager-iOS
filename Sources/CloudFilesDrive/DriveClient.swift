@@ -169,13 +169,13 @@ extension DriveClient {
         GIDSignIn.sharedInstance.addScopes([
           kGTLRAuthScopeDriveAppdata,
           kGTLRAuthScopeDriveFile,
-        ], presenting: controller, callback: { user, error in
+        ], presenting: controller) { user, error in
           if let error {
             completion(.failure(DriveClientError.authorize(error)))
             return
           }
           completion(.success(()))
-        })
+        }
       } else {
         completion(.success(()))
       }
@@ -184,8 +184,7 @@ extension DriveClient {
       service.apiKey = apiKey
       GIDSignIn.sharedInstance.signIn(
         with: .init(clientID: clientId),
-        presenting: controller,
-        callback: { user, error in
+        presenting: controller) { user, error in
           if let error {
             completion(.failure(DriveClientError.signIn(error)))
             return
@@ -196,7 +195,6 @@ extension DriveClient {
           }
           completion(.success(()))
         }
-      )
     }
   )
 }

@@ -1,3 +1,0 @@
-import CloudFiles
-
-struct NotImplemented {}
