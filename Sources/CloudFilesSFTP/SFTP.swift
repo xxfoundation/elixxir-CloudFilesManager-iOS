@@ -68,6 +68,15 @@ public struct SFTP {
 }
 
 extension SFTP {
+  public static let unimplemented: SFTP = .init(
+    _unlink: { fatalError() },
+    _isLinked: { fatalError() },
+    _fetch: { _,_ in fatalError() },
+    _download: { _,_ in fatalError() },
+    _upload: { _,_,_ in fatalError() },
+    _link: { _,_,_,_ in fatalError() }
+  )
+
   public static func live() -> SFTP {
     SFTP(
       _unlink: {
