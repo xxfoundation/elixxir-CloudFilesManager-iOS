@@ -3,14 +3,14 @@ import CloudFiles
 import GoogleSignIn
 import GoogleAPIClientForREST_Drive
 
-public struct DriveClient {
+public struct CloudFilesDrive {
   typealias SignInCompletion = (Result<Void, Swift.Error>) -> Void
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias AuthorizeCompletion = (Result<Void, Swift.Error>) -> Void
   typealias FetchCompletion = (Result<Fetch.Metadata?, Swift.Error>) -> Void
   typealias UploadCompletion = (Result<Upload.Metadata, Swift.Error>) -> Void
 
-  public enum DriveClientError: Swift.Error {
+  public enum DriveError: Swift.Error {
     case unknown
     case missingScopes
     case fetch(Error)
@@ -77,8 +77,18 @@ public struct DriveClient {
   }
 }
 
-extension DriveClient {
-  public static let live = DriveClient(
+extension CloudFilesDrive {
+  public static let unimplemented: CloudFilesDrive = .init(
+    _unlink: { fatalError() },
+    _isLinked: { fatalError() },
+    _fetch: { _,_ in fatalError() },
+    _download: { _,_ in fatalError() },
+    _upload: { _,_,_ in fatalError() },
+    _authorize: { _,_ in fatalError() },
+    _signIn: { _,_,_,_ in fatalError() }
+  )
+
+  public static let live = CloudFilesDrive(
     _unlink: {
       GIDSignIn.sharedInstance.signOut()
     },
@@ -100,14 +110,14 @@ extension DriveClient {
             completion(.success(nil))
             return
           }
-          completion(.failure(DriveClientError.fetch(error)))
+          completion(.failure(DriveError.fetch(error)))
           return
         }
         guard let metadata = (result as? GTLRDrive_FileList)?.files?.first,
               let date = metadata.modifiedTime?.date,
               let size = metadata.size?.floatValue,
               let id = metadata.identifier else {
-          completion(.failure(DriveClientError.unknown))
+          completion(.failure(DriveError.unknown))
           return
         }
         completion(.success(.init(
@@ -121,11 +131,11 @@ extension DriveClient {
       let query = GTLRDriveQuery_FilesGet.query(withFileId: "")
       service.executeQuery(query) { _, result, error in
         if let error {
-          completion(.failure(DriveClientError.download(error)))
+          completion(.failure(DriveError.download(error)))
           return
         }
         guard let data = (result as? GTLRDataObject)?.data else {
-          completion(.failure(DriveClientError.unknown))
+          completion(.failure(DriveError.unknown))
           return
         }
         completion(.success(data))
@@ -142,13 +152,13 @@ extension DriveClient {
       query.fields = "size, modifiedTime"
       service.executeQuery(query) { _, result, error in
         if let error {
-          completion(.failure(DriveClientError.upload(error)))
+          completion(.failure(DriveError.upload(error)))
           return
         }
         guard let file = result as? GTLRDrive_File,
               let size = file.size?.floatValue,
               let date = file.modifiedTime?.date else {
-          completion(.failure(DriveClientError.unknown))
+          completion(.failure(DriveError.unknown))
           return
         }
         completion(.success(.init(
@@ -160,7 +170,7 @@ extension DriveClient {
     _authorize: { controller, completion in
       guard let user = GIDSignIn.sharedInstance.currentUser,
             let scopes = user.grantedScopes else {
-        completion(.failure(DriveClientError.missingScopes))
+        completion(.failure(DriveError.missingScopes))
         return
       }
       service.authorizer = user.authentication.fetcherAuthorizer()
@@ -171,7 +181,7 @@ extension DriveClient {
           kGTLRAuthScopeDriveFile,
         ], presenting: controller) { user, error in
           if let error {
-            completion(.failure(DriveClientError.authorize(error)))
+            completion(.failure(DriveError.authorize(error)))
             return
           }
           completion(.success(()))
@@ -186,11 +196,11 @@ extension DriveClient {
         with: .init(clientID: clientId),
         presenting: controller) { user, error in
           if let error {
-            completion(.failure(DriveClientError.signIn(error)))
+            completion(.failure(DriveError.signIn(error)))
             return
           }
           guard user != nil else {
-            completion(.failure(DriveClientError.unknown))
+            completion(.failure(DriveError.unknown))
             return
           }
           completion(.success(()))
@@ -213,11 +223,8 @@ extension CloudFilesManager {
       fetch: .drive(fileName: fileName),
       upload: .drive(fileName: fileName),
       unlink: .drive(),
-      enable: .unimplemented,
-      disable: .unimplemented,
       download: .drive(fileName: fileName),
-      isLinked: .drive(),
-      isEnabled: .unimplemented
+      isLinked: .drive()
     )
   }
 }

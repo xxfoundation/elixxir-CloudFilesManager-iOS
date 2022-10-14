@@ -3,7 +3,7 @@ import CloudFiles
 
 extension Link {
   public static func dropbox(
-    client: DropboxClient = .live,
+    client: CloudFilesDropbox = .live(),
     appKey: String,
     application: UIApplication = .shared
   ) -> Link {
@@ -19,7 +19,7 @@ extension Link {
 
 extension IsLinked {
   public static func dropbox(
-    client: DropboxClient = .live
+    client: CloudFilesDropbox = .live()
   ) -> IsLinked {
     IsLinked {
       client.isLinked()
@@ -29,7 +29,7 @@ extension IsLinked {
 
 extension Unlink {
   public static func dropbox(
-    client: DropboxClient = .live
+    client: CloudFilesDropbox = .live()
   ) -> Unlink {
     Unlink {
       client.unlink()
@@ -40,20 +40,14 @@ extension Unlink {
 extension Upload {
   public static func dropbox(
     path: String,
-    client: DropboxClient = .live
+    client: CloudFilesDropbox = .live()
   ) -> Upload {
     Upload { data, completion in
-      client.upload(path: path, input: data) { uploadResult in
-        switch uploadResult {
-        case .success(let fileMetadata):
-          completion(.success(.init(
-            size: Float(fileMetadata.size),
-            lastModified: fileMetadata.serverModified
-          )))
-        case .failure(let error):
-          completion(.failure(error))
-        }
-      }
+      client.upload(
+        path: path,
+        input: data,
+        completion: completion
+      )
     }
   }
 }
@@ -61,7 +55,7 @@ extension Upload {
 extension Fetch {
   public static func dropbox(
     path: String,
-    client: DropboxClient = .live
+    client: CloudFilesDropbox = .live()
   ) -> Fetch {
     Fetch { completion in
       client.fetch(path: path) { fetchResult in
@@ -69,8 +63,8 @@ extension Fetch {
         case .success(let metadata):
           if let metadata {
             completion(.success(.init(
-              size: Float(metadata.size),
-              lastModified: metadata.serverModified
+              size: metadata.size,
+              lastModified: metadata.lastModified
             )))
           } else {
             completion(.success(nil))
@@ -86,7 +80,7 @@ extension Fetch {
 extension Download {
   public static func dropbox(
     path: String,
-    client: DropboxClient = .live
+    client: CloudFilesDropbox = .live()
   ) -> Download {
     Download {
       client.download(

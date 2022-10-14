@@ -3,31 +3,33 @@ public struct CloudFilesManager {
   public var fetch: Fetch
   public var upload: Upload
   public var unlink: Unlink
-  public var enable: Enable
-  public var disable: Disable
   public var download: Download
   public var isLinked: IsLinked
-  public var isEnabled: IsEnabled
 
   public init(
-    link: Link = .unimplemented,
-    fetch: Fetch = .unimplemented,
-    upload: Upload = .unimplemented,
-    unlink: Unlink = .unimplemented,
-    enable: Enable = .unimplemented,
-    disable: Disable = .unimplemented,
-    download: Download = .unimplemented,
-    isLinked: IsLinked = .unimplemented,
-    isEnabled: IsEnabled = .unimplemented
+    link: Link,
+    fetch: Fetch,
+    upload: Upload,
+    unlink: Unlink,
+    download: Download,
+    isLinked: IsLinked
   ) {
     self.link = link
     self.fetch = fetch
     self.upload = upload
     self.unlink = unlink
-    self.enable = enable
-    self.disable = disable
     self.download = download
     self.isLinked = isLinked
-    self.isEnabled = isEnabled
   }
+}
+
+public extension CloudFilesManager {
+  static let unimplemented: CloudFilesManager = .init(
+    link: .unimplemented,
+    fetch: .unimplemented,
+    upload: .unimplemented,
+    unlink: .unimplemented,
+    download: .unimplemented,
+    isLinked: .unimplemented
+  )
 }
