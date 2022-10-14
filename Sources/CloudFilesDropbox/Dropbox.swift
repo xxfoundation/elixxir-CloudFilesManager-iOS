@@ -2,7 +2,7 @@ import UIKit
 import CloudFiles
 import SwiftyDropbox
 
-public struct CloudFilesDropbox {
+public struct Dropbox {
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias FetchCompletion = (Result<Fetch.Metadata?, Swift.Error>) -> Void
   typealias UploadCompletion = (Result<Upload.Metadata, Swift.Error>) -> Void
@@ -61,8 +61,8 @@ public struct CloudFilesDropbox {
   }
 }
 
-extension CloudFilesDropbox {
-  public static let unimplemented: CloudFilesDropbox = .init(
+extension Dropbox {
+  public static let unimplemented: Dropbox = .init(
     _unlink: { fatalError() },
     _isLinked: { fatalError() },
     _fetch: { _,_ in fatalError() },
@@ -71,8 +71,8 @@ extension CloudFilesDropbox {
     _upload: { _,_,_ in fatalError() }
   )
 
-  public static func live() -> CloudFilesDropbox {
-    CloudFilesDropbox(
+  public static func live() -> Dropbox {
+    Dropbox(
       _unlink: {
         DropboxClientsManager.unlinkClients()
       },

@@ -2,7 +2,7 @@ import UIKit
 import CloudFiles
 import FilesProvider
 
-public struct CloudFilesICloud {
+public struct ICloud {
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias FetchCompletion = (Result<Fetch.Metadata?, Swift.Error>) -> Void
   typealias UploadCompletion = (Result<Upload.Metadata, Swift.Error>) -> Void
@@ -61,8 +61,8 @@ public struct CloudFilesICloud {
   }
 }
 
-extension CloudFilesICloud {
-  public static let unimplemented: CloudFilesICloud = .init(
+extension ICloud {
+  public static let unimplemented: ICloud = .init(
     _link: { fatalError() },
     _unlink: { fatalError() },
     _isLinked: { fatalError() },
@@ -71,15 +71,15 @@ extension CloudFilesICloud {
     _upload: { _,_,_ in fatalError() }
   )
 
-  public static func live() -> CloudFilesICloud {
-    CloudFilesICloud(
+  public static func live() -> ICloud {
+    ICloud(
       _link: {
         if let url = URL(string: "App-Prefs:root=CASTLE"), UIApplication.shared.canOpenURL(url) {
           UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
       },
       _unlink: {
-        fatalError("Unlinking from iCloud is not possible")
+        // It is not possible to unlink from iCloud
       },
       _isLinked: {
         FileManager.default.ubiquityIdentityToken != nil

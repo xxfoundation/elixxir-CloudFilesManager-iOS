@@ -1,13 +1,31 @@
 import UIKit
 import CloudFiles
+import SwiftyDropbox
+
+var linkCompletion: Link.Completion?
+
+public func handleRedirectURL(_ url: URL) -> Bool {
+  DropboxClientsManager.handleRedirectURL(url) {
+    if let authResult = $0 {
+      switch authResult {
+      case .success:
+        linkCompletion?(.success(()))
+      case .error, .cancel:
+        linkCompletion?(.failure(NSError(domain: "", code: 0)))
+      }
+      linkCompletion = nil
+    }
+  }
+}
 
 extension Link {
   public static func dropbox(
-    client: CloudFilesDropbox = .live(),
+    client: Dropbox = .live(),
     appKey: String,
     application: UIApplication = .shared
   ) -> Link {
     Link { controller, completion in
+      linkCompletion = completion
       client.link(
         appKey: appKey,
         controller: controller,
@@ -19,7 +37,7 @@ extension Link {
 
 extension IsLinked {
   public static func dropbox(
-    client: CloudFilesDropbox = .live()
+    client: Dropbox = .live()
   ) -> IsLinked {
     IsLinked {
       client.isLinked()
@@ -29,7 +47,7 @@ extension IsLinked {
 
 extension Unlink {
   public static func dropbox(
-    client: CloudFilesDropbox = .live()
+    client: Dropbox = .live()
   ) -> Unlink {
     Unlink {
       client.unlink()
@@ -40,7 +58,7 @@ extension Unlink {
 extension Upload {
   public static func dropbox(
     path: String,
-    client: CloudFilesDropbox = .live()
+    client: Dropbox = .live()
   ) -> Upload {
     Upload { data, completion in
       client.upload(
@@ -55,24 +73,13 @@ extension Upload {
 extension Fetch {
   public static func dropbox(
     path: String,
-    client: CloudFilesDropbox = .live()
+    client: Dropbox = .live()
   ) -> Fetch {
     Fetch { completion in
-      client.fetch(path: path) { fetchResult in
-        switch fetchResult {
-        case .success(let metadata):
-          if let metadata {
-            completion(.success(.init(
-              size: metadata.size,
-              lastModified: metadata.lastModified
-            )))
-          } else {
-            completion(.success(nil))
-          }
-        case .failure(let error):
-          completion(.failure(error))
-        }
-      }
+      client.fetch(
+        path: path,
+        completion: completion
+      )
     }
   }
 }
@@ -80,7 +87,7 @@ extension Fetch {
 extension Download {
   public static func dropbox(
     path: String,
-    client: CloudFilesDropbox = .live()
+    client: Dropbox = .live()
   ) -> Download {
     Download {
       client.download(

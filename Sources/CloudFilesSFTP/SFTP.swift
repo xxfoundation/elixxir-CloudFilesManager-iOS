@@ -3,7 +3,7 @@ import Foundation
 import CloudFiles
 import KeychainAccess
 
-public struct CloudFilesSFTP {
+public struct SFTP {
   typealias LinkCompletion = (Result<Void, Swift.Error>) -> Void
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias FetchCompletion = (Result<Fetch.Metadata?, Swift.Error>) -> Void
@@ -67,9 +67,9 @@ public struct CloudFilesSFTP {
   }
 }
 
-extension CloudFilesSFTP {
-  public static func live() -> CloudFilesSFTP {
-    CloudFilesSFTP(
+extension SFTP {
+  public static func live() -> SFTP {
+    SFTP(
       _unlink: {
         do {
           try keychain.removeAll()

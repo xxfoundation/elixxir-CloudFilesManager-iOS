@@ -3,7 +3,7 @@ import CloudFiles
 
 extension Unlink {
   public static func drive(
-    client: CloudFilesDrive = .live
+    client: Drive = .live
   ) -> Unlink {
     Unlink {
       client.unlink()
@@ -14,7 +14,7 @@ extension Unlink {
 extension Download {
   public static func drive(
     fileName: String,
-    client: CloudFilesDrive = .live
+    client: Drive = .live
   ) -> Download {
     Download { completion in
       client.fetch(
@@ -23,14 +23,10 @@ extension Download {
           switch fetchResult {
           case .success(let metadata):
             if let metadata, let id = metadata.id {
-              client.download(fileId: id) {
-                switch $0 {
-                case .success(let data):
-                  completion(.success(data))
-                case .failure(let error):
-                  completion(.failure(error))
-                }
-              }
+              client.download(
+                fileId: id,
+                completion: completion
+              )
             }
           case .failure(let error):
             completion(.failure(error))
@@ -44,7 +40,7 @@ extension Download {
 extension Upload {
   public static func drive(
     fileName: String,
-    client: CloudFilesDrive = .live
+    client: Drive = .live
   ) -> Upload {
     Upload { data, completion in
       client.upload(
@@ -58,7 +54,7 @@ extension Upload {
 
 extension Fetch {
   public static func drive(
-    client: CloudFilesDrive = .live,
+    client: Drive = .live,
     fileName: String
   ) -> Fetch {
     Fetch {
@@ -72,7 +68,7 @@ extension Fetch {
 
 extension IsLinked {
   public static func drive(
-    client: CloudFilesDrive = .live
+    client: Drive = .live
   ) -> IsLinked {
     IsLinked {
       client.isLinked()
@@ -82,7 +78,7 @@ extension IsLinked {
 
 extension Link {
   public static func drive(
-    client: CloudFilesDrive = .live,
+    client: Drive = .live,
     apiKey: String,
     clientId: String
   ) -> Link {

@@ -3,7 +3,7 @@ import CloudFiles
 import GoogleSignIn
 import GoogleAPIClientForREST_Drive
 
-public struct CloudFilesDrive {
+public struct Drive {
   typealias SignInCompletion = (Result<Void, Swift.Error>) -> Void
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias AuthorizeCompletion = (Result<Void, Swift.Error>) -> Void
@@ -77,8 +77,8 @@ public struct CloudFilesDrive {
   }
 }
 
-extension CloudFilesDrive {
-  public static let unimplemented: CloudFilesDrive = .init(
+extension Drive {
+  public static let unimplemented: Drive = .init(
     _unlink: { fatalError() },
     _isLinked: { fatalError() },
     _fetch: { _,_ in fatalError() },
@@ -88,7 +88,7 @@ extension CloudFilesDrive {
     _signIn: { _,_,_,_ in fatalError() }
   )
 
-  public static let live = CloudFilesDrive(
+  public static let live = Drive(
     _unlink: {
       GIDSignIn.sharedInstance.signOut()
     },

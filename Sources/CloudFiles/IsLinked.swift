@@ -1,11 +1,11 @@
 public struct IsLinked {
-  public var run: () throws -> Bool
+  public var run: () -> Bool
 
-  public func callAsFunction() throws -> Bool {
-    try run()
+  public func callAsFunction() -> Bool {
+    run()
   }
 
-  public init(run: @escaping () throws -> Bool) {
+  public init(run: @escaping () -> Bool) {
     self.run = run
   }
 }
