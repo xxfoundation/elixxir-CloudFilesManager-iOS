@@ -5,24 +5,37 @@ import CloudFiles
 final class CloudFilesDriveDownloadTests: XCTestCase {
   private let mockFileName = "MOCK_FILE_NAME"
   private let mockData = "MOCK_DATA".data(using: .utf8)
+  private let mockMetadata = Fetch.Metadata(
+    id: "MOCK_FILE_ID",
+    size: 1234.5,
+    lastModified: .distantPast
+  )
 
   private var didFailWithError: Any?
   private var didDownloadWithData: Data?
-  private var didDownloadWithFileName: String?
+  private var didFetchWithFileName: String?
+  private var didDownloadWithFileId: String?
+
   private var client: CloudFilesDrive = .unimplemented
   private var manager: CloudFilesManager = .unimplemented
 
   override func tearDown() {
     didFailWithError = nil
     didDownloadWithData = nil
-    didDownloadWithFileName = nil
+    didFetchWithFileName = nil
+    didDownloadWithFileId = nil
+
     client = .unimplemented
     manager = .unimplemented
   }
 
   func testDownload() throws {
-    client._download = { [weak self] fileName, completion in
-      self?.didDownloadWithFileName = fileName
+    client._fetch = { [weak self] fileName, completion in
+      self?.didFetchWithFileName = fileName
+      completion(.success(self?.mockMetadata))
+    }
+    client._download = { [weak self] fileId, completion in
+      self?.didDownloadWithFileId = fileId
       completion(.success(self?.mockData))
     }
     manager.download = .drive(
@@ -39,6 +52,7 @@ final class CloudFilesDriveDownloadTests: XCTestCase {
     }
     XCTAssertNil(didFailWithError)
     XCTAssertEqual(didDownloadWithData, mockData)
-    XCTAssertEqual(didDownloadWithFileName, mockFileName)
+    XCTAssertEqual(didFetchWithFileName, mockFileName)
+    XCTAssertEqual(didDownloadWithFileId, mockMetadata.id)
   }
 }

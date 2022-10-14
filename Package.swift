@@ -5,18 +5,35 @@ import PackageDescription
 let package = Package(
   name: "xxm-cloud-providers",
   defaultLocalization: "en",
-  platforms: [.iOS(.v14),],
+  platforms: [
+    .iOS(.v14)
+  ],
   products: [
-    .library(name: "CloudFiles", targets: ["CloudFiles"]),
-    .library(name: "CloudFilesSFTP", targets: ["CloudFilesSFTP"]),
-    .library(name: "CloudFilesDrive", targets: ["CloudFilesDrive"]),
-    .library(name: "CloudFilesICloud", targets: ["CloudFilesICloud"]),
-    .library(name: "CloudFilesDropbox", targets: ["CloudFilesDropbox"])
+    .library(
+      name: "CloudFiles",
+      targets: ["CloudFiles"]
+    ),
+    .library(
+      name: "CloudFilesSFTP",
+      targets: ["CloudFilesSFTP"]
+    ),
+    .library(
+      name: "CloudFilesDrive",
+      targets: ["CloudFilesDrive"]
+    ),
+    .library(
+      name: "CloudFilesICloud",
+      targets: ["CloudFilesICloud"]
+    ),
+    .library(
+      name: "CloudFilesDropbox",
+      targets: ["CloudFilesDropbox"]
+    )
   ],
   dependencies: [
     .package(
       url: "https://github.com/google/GoogleSignIn-iOS",
-      .upToNextMajor(from: "6.1.0")
+      .upToNextMajor(from: "6.2.4")
     ),
     .package(
       url: "https://github.com/dropbox/SwiftyDropbox.git",
