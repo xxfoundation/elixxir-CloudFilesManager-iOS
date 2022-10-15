@@ -7,17 +7,17 @@ final class DropboxFetchTests: XCTestCase {
     var didFailWithError: Any?
     var didFetchWithPath: String?
     var didFetchMetadata: Fetch.Metadata?
-    let mockedPath = "PATH_FETCH"
-    let mockedMetadata = Fetch.Metadata(
+    let mockPath = "PATH_FETCH"
+    let mockMetadata = Fetch.Metadata(
       size: 1234.5,
       lastModified: Date.distantPast
     )
     var client: Dropbox = .unimplemented
     client._fetch = { path, completion in
       didFetchWithPath = path
-      completion(.success(mockedMetadata))
+      completion(.success(mockMetadata))
     }
-    let fetch: Fetch = .dropbox(path: mockedPath, client: client)
+    let fetch: Fetch = .dropbox(path: mockPath, client: client)
     try fetch {
       switch $0 {
       case .success(let metadata):
@@ -27,7 +27,7 @@ final class DropboxFetchTests: XCTestCase {
       }
     }
     XCTAssertNil(didFailWithError)
-    XCTAssertEqual(didFetchWithPath, mockedPath)
-    XCTAssertEqual(didFetchMetadata, mockedMetadata)
+    XCTAssertEqual(didFetchWithPath, mockPath)
+    XCTAssertEqual(didFetchMetadata, mockMetadata)
   }
 }

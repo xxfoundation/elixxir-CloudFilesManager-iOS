@@ -7,19 +7,19 @@ final class DriveFetchTests: XCTestCase {
     var didFailWithError: Any?
     var didFetchWithFileName: String?
     var didFetchMetadata: Fetch.Metadata?
-    let mockedFileName = "FILE_NAME_FETCH"
-    let mockedMetadata = Fetch.Metadata(
+    let mockFileName = "FILE_NAME_FETCH"
+    let mockMetadata = Fetch.Metadata(
       size: 1234.5,
       lastModified: Date.distantPast
     )
     var client: Drive = .unimplemented
     client._fetch = { fileName, completion in
       didFetchWithFileName = fileName
-      completion(.success(mockedMetadata))
+      completion(.success(mockMetadata))
     }
     let fetch: Fetch = .drive(
       client: client,
-      fileName: mockedFileName
+      fileName: mockFileName
     )
     try fetch {
       switch $0 {
@@ -30,7 +30,7 @@ final class DriveFetchTests: XCTestCase {
       }
     }
     XCTAssertNil(didFailWithError)
-    XCTAssertEqual(didFetchMetadata, mockedMetadata)
-    XCTAssertEqual(didFetchWithFileName, mockedFileName)
+    XCTAssertEqual(didFetchMetadata, mockMetadata)
+    XCTAssertEqual(didFetchWithFileName, mockFileName)
   }
 }
