@@ -11,7 +11,7 @@ public struct SFTP {
 
   public enum SFTPError: Swift.Error {
     case unknown
-    case unauthorized
+    case unlinked
     case link(Error)
     case fetch(Error)
     case upload(Error)
@@ -98,7 +98,7 @@ extension SFTP {
         guard let host = try? keychain.get("host"),
               let password = try? keychain.get("pwd"),
               let username = try? keychain.get("username") else {
-          completion(.failure(SFTPError.unauthorized))
+          completion(.failure(SFTPError.unlinked))
           return
         }
         do {
@@ -122,7 +122,7 @@ extension SFTP {
         guard let host = try? keychain.get("host"),
               let password = try? keychain.get("pwd"),
               let username = try? keychain.get("username") else {
-          completion(.failure(SFTPError.unauthorized))
+          completion(.failure(SFTPError.unlinked))
           return
         }
         do {
@@ -142,7 +142,7 @@ extension SFTP {
         guard let host = try? keychain.get("host"),
               let password = try? keychain.get("pwd"),
               let username = try? keychain.get("username") else {
-          completion(.failure(SFTPError.unauthorized))
+          completion(.failure(SFTPError.unlinked))
           return
         }
         do {

@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Fetch {
-  public struct Metadata: Equatable {
+  public struct Metadata: Equatable, Codable {
     public var id: String?
     public var size: Float
     public var lastModified: Date

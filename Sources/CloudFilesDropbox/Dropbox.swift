@@ -9,7 +9,9 @@ public struct Dropbox {
 
   public enum Error: Swift.Error {
     case unknown
+    case abortedLink
     case unauthorized
+    case link(OAuth2Error)
     case fetch(CallError<Files.GetMetadataError>)
     case upload(CallError<Files.UploadError>)
     case download(CallError<Files.DownloadError>)

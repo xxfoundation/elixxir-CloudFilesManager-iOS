@@ -10,6 +10,7 @@ extension Link {
         return
       }
       client.link()
+      completion(.success(()))
     }
   }
 }
@@ -28,9 +29,7 @@ extension Unlink {
   public static func iCloud(
     client: ICloud = .live()
   ) -> Unlink {
-    Unlink {
-      client.unlink()
-    }
+    Unlink {}
   }
 }
 

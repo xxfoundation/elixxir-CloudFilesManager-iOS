@@ -10,8 +10,10 @@ public func handleRedirectURL(_ url: URL) -> Bool {
       switch authResult {
       case .success:
         linkCompletion?(.success(()))
-      case .error, .cancel:
-        linkCompletion?(.failure(NSError(domain: "", code: 0)))
+      case .error(let error, _):
+        linkCompletion?(.failure(Dropbox.Error.link(error)))
+      case .cancel:
+        linkCompletion?(.failure(Dropbox.Error.abortedLink))
       }
       linkCompletion = nil
     }

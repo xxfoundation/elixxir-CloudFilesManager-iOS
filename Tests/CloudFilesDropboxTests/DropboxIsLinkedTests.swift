@@ -3,15 +3,17 @@ import CloudFiles
 @testable import CloudFilesDropbox
 
 final class DropboxIsLinkedTests: XCTestCase {
-  func testIsLinked() throws {
-    var didRequestIsLinked: Bool?
+  func testIsLinkedWhenClientIsLinked() throws {
     var client: Dropbox = .unimplemented
-    client._isLinked = {
-      didRequestIsLinked = true
-      return true
-    }
+    client._isLinked = { true }
     let isLinked: IsLinked = .dropbox(client: client)
-    XCTAssertEqual(isLinked(), didRequestIsLinked)
-    XCTAssertNotNil(didRequestIsLinked)
+    XCTAssertTrue(isLinked())
+  }
+
+  func testIsLinkedWhenClientIsNotLinked() throws {
+    var client: Dropbox = .unimplemented
+    client._isLinked = { false }
+    let isLinked: IsLinked = .dropbox(client: client)
+    XCTAssertFalse(isLinked())
   }
 }

@@ -20,7 +20,6 @@ public struct ICloud {
   )
 
   var _link: () -> Void
-  var _unlink: () -> Void
   var _isLinked: () -> Bool
   var _fetch: (String, @escaping FetchCompletion) -> Void
   var _download: (String, @escaping DownloadCompletion) -> Void
@@ -28,10 +27,6 @@ public struct ICloud {
 
   func link() {
     _link()
-  }
-
-  func unlink() {
-    _unlink()
   }
 
   func isLinked() -> Bool {
@@ -64,7 +59,6 @@ public struct ICloud {
 extension ICloud {
   public static let unimplemented: ICloud = .init(
     _link: { fatalError() },
-    _unlink: { fatalError() },
     _isLinked: { fatalError() },
     _fetch: { _,_ in fatalError() },
     _download: { _,_ in fatalError() },
@@ -77,9 +71,6 @@ extension ICloud {
         if let url = URL(string: "App-Prefs:root=CASTLE"), UIApplication.shared.canOpenURL(url) {
           UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
-      },
-      _unlink: {
-        // It is not possible to unlink from iCloud
       },
       _isLinked: {
         FileManager.default.ubiquityIdentityToken != nil

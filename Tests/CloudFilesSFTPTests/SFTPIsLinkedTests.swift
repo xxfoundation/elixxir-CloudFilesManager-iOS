@@ -3,15 +3,17 @@ import CloudFiles
 @testable import CloudFilesSFTP
 
 final class SFTPIsLinkedTests: XCTestCase {
-  func testIsLinked() throws {
-    var didRequestIsLinked: Bool?
+  func testIsLinkedWhenClientIsLinked() throws {
     var client: SFTP = .unimplemented
-    client._isLinked = {
-      didRequestIsLinked = true
-      return true
-    }
+    client._isLinked = { true }
     let isLinked: IsLinked = .sftp(client: client)
-    XCTAssertEqual(isLinked(), didRequestIsLinked)
-    XCTAssertNotNil(didRequestIsLinked)
+    XCTAssertTrue(isLinked())
+  }
+
+  func testIsLinkedWhenClientIsNotLinked() throws {
+    var client: SFTP = .unimplemented
+    client._isLinked = { false }
+    let isLinked: IsLinked = .sftp(client: client)
+    XCTAssertFalse(isLinked())
   }
 }

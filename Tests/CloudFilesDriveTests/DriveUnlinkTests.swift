@@ -4,14 +4,11 @@ import CloudFiles
 
 final class DriveUnlinkTests: XCTestCase {
   func testUnlink() throws {
-    var didUnlink: Bool?
+    var didUnlink: Int = 0
     var client: Drive = .unimplemented
-    client._unlink = {
-      didUnlink = true
-    }
+    client._unlink = { didUnlink += 1 }
     let unlink: Unlink = .drive(client: client)
     try unlink()
-    XCTAssertNotNil(didUnlink)
-    XCTAssertTrue(didUnlink!)
+    XCTAssertEqual(didUnlink, 1)
   }
 }
