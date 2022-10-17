@@ -4,7 +4,11 @@ extension Link {
   public static func iCloud(
     client: ICloud = .live()
   ) -> Link {
-    Link { _,_ in
+    Link { _, completion in
+      guard !client.isLinked() else {
+        completion(.success(()))
+        return
+      }
       client.link()
     }
   }
