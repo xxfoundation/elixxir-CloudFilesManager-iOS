@@ -127,8 +127,8 @@ extension Drive {
         )))
       }
     },
-    _download: { fileName, completion in
-      let query = GTLRDriveQuery_FilesGet.query(withFileId: "")
+    _download: { fileId, completion in
+      let query = GTLRDriveQuery_FilesGet.query(withFileId: fileId)
       service.executeQuery(query) { _, result, error in
         if let error {
           completion(.failure(DriveError.download(error)))
