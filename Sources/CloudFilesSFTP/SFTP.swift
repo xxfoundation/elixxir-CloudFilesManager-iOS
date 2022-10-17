@@ -105,21 +105,20 @@ extension SFTP {
           let ssh = try SSH(host: host, port: 22)
           try ssh.authenticate(username: username, password: password)
           let sftp = try ssh.openSftp()
-          let files = try sftp.listFiles(in: "backup")
-          let filesMatching = files.filter { $0.0 == "backup.xxm" }
-          guard let backup = filesMatching.first else {
+          guard let files = try? sftp.listFiles(in: "backup"),
+                let file = files.first(where: { $0.0 == fileName }) else {
             completion(.success(nil))
             return
           }
           completion(.success(.init(
-            size: Float(backup.value.size),
-            lastModified: backup.value.lastModified
+            size: Float(file.value.size),
+            lastModified: file.value.lastModified
           )))
         } catch {
           completion(.failure(SFTPError.fetch(error)))
         }
       },
-      _download: { path, completion in
+      _download: { fileName, completion in
         guard let host = try? keychain.get("host"),
               let password = try? keychain.get("pwd"),
               let username = try? keychain.get("username") else {
@@ -133,7 +132,7 @@ extension SFTP {
           let localURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: "group.elixxir.messenger")!
             .appendingPathComponent("sftp")
-          try sftp.download(remotePath: path, localURL: localURL)
+          try sftp.download(remotePath: "backup/\(fileName)", localURL: localURL)
           completion(.success(try Data(contentsOf: localURL)))
         } catch {
           completion(.failure(SFTPError.download(error)))
