@@ -15,6 +15,9 @@ final class DriveUploadTests: XCTestCase {
       lastModified: Date.distantFuture
     )
     var client: Drive = .unimplemented
+    client._restore = { completion in
+      completion(.success(()))
+    }
     client._upload = { fileName, data, completion in
       didUploadWithData = data
       didUploadWithFileName = fileName
