@@ -163,17 +163,17 @@ extension Drive {
       }
     },
     _download: { fileId, completion in
-      let query = GTLRDriveQuery_FilesGet.query(withFileId: fileId)
+      let query = GTLRDriveQuery_FilesGet.queryForMedia(withFileId: fileId)
       service.executeQuery(query) { _, result, error in
         if let error {
           completion(.failure(DriveError.download(error)))
           return
         }
-        guard let data = (result as? GTLRDataObject)?.data else {
+        guard let file = (result as? GTLRDataObject)?.data else {
           completion(.failure(DriveError.unknown))
           return
         }
-        completion(.success(data))
+        completion(.success(file))
       }
     },
     _upload: { fileName, data, completion in
