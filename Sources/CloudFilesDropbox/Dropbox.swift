@@ -158,9 +158,15 @@ extension Dropbox {
             completion(.failure(Error.unknown))
             return
           }
+          // Dropbox API uses some sort of checksum
+          // to verify if the file was modified. This
+          // causes a bad UX because users can arbitrarily
+          // perform backups. Therefore, we are using
+          // Date() instead of .serverModified
+          //
           completion(.success(.init(
             size: Float(response.size),
-            lastModified: response.serverModified
+            lastModified: Date()
           )))
         }
       }
