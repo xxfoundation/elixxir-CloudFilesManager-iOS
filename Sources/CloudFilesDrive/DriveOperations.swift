@@ -1,5 +1,12 @@
 import UIKit
 import CloudFiles
+import GoogleSignIn
+
+public func restoreIfPossible() {
+  if GIDSignIn.sharedInstance.hasPreviousSignIn() {
+    GIDSignIn.sharedInstance.restorePreviousSignIn()
+  }
+}
 
 extension Unlink {
   public static func drive(
@@ -43,11 +50,18 @@ extension Upload {
     client: Drive = .live
   ) -> Upload {
     Upload { data, completion in
-      client.upload(
-        fileName: fileName,
-        input: data,
-        completion: completion
-      )
+      client.restore {
+        switch $0 {
+        case .success:
+          client.upload(
+            fileName: fileName,
+            input: data,
+            completion: completion
+          )
+        case .failure(let error):
+          completion(.failure(error))
+        }
+      }
     }
   }
 }
@@ -57,11 +71,18 @@ extension Fetch {
     client: Drive = .live,
     fileName: String
   ) -> Fetch {
-    Fetch {
-      client.fetch(
-        fileName: fileName,
-        completion: $0
-      )
+    Fetch { completion in
+      client.restore {
+        switch $0 {
+        case .success:
+          client.fetch(
+            fileName: fileName,
+            completion: completion
+          )
+        case .failure(let error):
+          completion(.failure(error))
+        }
+      }
     }
   }
 }

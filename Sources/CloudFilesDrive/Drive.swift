@@ -5,6 +5,7 @@ import GoogleAPIClientForREST_Drive
 
 public struct Drive {
   typealias SignInCompletion = (Result<Void, Swift.Error>) -> Void
+  typealias RestoreCompletion = (Result<Void, Swift.Error>) -> Void
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
   typealias AuthorizeCompletion = (Result<Void, Swift.Error>) -> Void
   typealias FetchCompletion = (Result<Fetch.Metadata?, Swift.Error>) -> Void
@@ -12,10 +13,12 @@ public struct Drive {
 
   public enum DriveError: Swift.Error {
     case unknown
+    case unauthorized
     case missingScopes
     case fetch(Error)
     case signIn(Error)
     case upload(Error)
+    case restore(Error)
     case download(Error)
     case authorize(Error)
   }
@@ -24,6 +27,7 @@ public struct Drive {
 
   var _unlink: () -> Void
   var _isLinked: () -> Bool
+  var _restore: (@escaping RestoreCompletion) -> Void
   var _fetch: (String, @escaping FetchCompletion) -> Void
   var _download: (String, @escaping DownloadCompletion) -> Void
   var _upload: (String, Data, @escaping UploadCompletion) -> Void
@@ -36,6 +40,12 @@ public struct Drive {
 
   func isLinked() -> Bool {
     _isLinked()
+  }
+
+  func restore(
+    completion: @escaping RestoreCompletion
+  ) {
+    _restore(completion)
   }
 
   func download(
@@ -81,6 +91,7 @@ extension Drive {
   public static let unimplemented: Drive = .init(
     _unlink: { fatalError() },
     _isLinked: { fatalError() },
+    _restore: { _ in fatalError() },
     _fetch: { _,_ in fatalError() },
     _download: { _,_ in fatalError() },
     _upload: { _,_,_ in fatalError() },
@@ -93,11 +104,35 @@ extension Drive {
       GIDSignIn.sharedInstance.signOut()
     },
     _isLinked: {
-      guard let currentUser = GIDSignIn.sharedInstance.currentUser,
-            let grantedScopes = currentUser.grantedScopes,
-            grantedScopes.contains(kGTLRAuthScopeDriveFile),
-            grantedScopes.contains(kGTLRAuthScopeDriveAppdata) else { return false }
+      guard GIDSignIn.sharedInstance.hasPreviousSignIn(),
+            let currentUser = GIDSignIn.sharedInstance.currentUser,
+            let scopes = currentUser.grantedScopes,
+            scopes.contains(kGTLRAuthScopeDriveFile),
+            scopes.contains(kGTLRAuthScopeDriveAppdata) else {
+        return false
+      }
       return true
+    },
+    _restore: { completion in
+      guard GIDSignIn.sharedInstance.hasPreviousSignIn() else {
+        completion(.failure(DriveError.unauthorized))
+        return
+      }
+      GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+        if let error {
+          completion(.failure(DriveError.restore(error)))
+          return
+        }
+        guard let user,
+              let scopes = user.grantedScopes,
+              scopes.contains(kGTLRAuthScopeDriveFile),
+              scopes.contains(kGTLRAuthScopeDriveAppdata) else {
+          completion(.failure(DriveError.unauthorized))
+          return
+        }
+        service.authorizer = user.authentication.fetcherAuthorizer()
+        completion(.success(()))
+      }
     },
     _fetch: { fileName, completion in
       let query = GTLRDriveQuery_FilesList.query()
