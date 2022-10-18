@@ -138,7 +138,7 @@ extension SFTP {
           completion(.failure(SFTPError.download(error)))
         }
       },
-      _upload: { filePath, data, completion in
+      _upload: { fileName, data, completion in
         guard let host = try? keychain.get("host"),
               let password = try? keychain.get("pwd"),
               let username = try? keychain.get("username") else {
@@ -152,7 +152,7 @@ extension SFTP {
           if (try? sftp.listFiles(in: "backup")) == nil {
             try sftp.createDirectory("backup")
           }
-          try sftp.upload(data: data, remotePath: filePath)
+          try sftp.upload(data: data, remotePath: "backup/\(fileName)")
           completion(.success(.init(
             size: Float(data.count),
             lastModified: Date()
