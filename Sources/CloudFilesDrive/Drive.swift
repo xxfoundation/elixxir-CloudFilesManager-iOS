@@ -30,7 +30,7 @@ public struct Drive {
   var _restore: (@escaping RestoreCompletion) -> Void
   var _fetch: (String, @escaping FetchCompletion) -> Void
   var _download: (String, @escaping DownloadCompletion) -> Void
-  var _upload: (String, Data, @escaping UploadCompletion) -> Void
+  var _upload: (String?, String, Data, @escaping UploadCompletion) -> Void
   var _authorize: (UIViewController, @escaping AuthorizeCompletion) -> Void
   var _signIn: (String, String, UIViewController, @escaping SignInCompletion) -> Void
 
@@ -56,11 +56,12 @@ public struct Drive {
   }
 
   func upload(
+    fileId: String?,
     fileName: String,
     input: Data,
     completion: @escaping UploadCompletion
   ) {
-    _upload(fileName, input, completion)
+    _upload(fileId, fileName, input, completion)
   }
 
   func fetch(
@@ -94,7 +95,7 @@ extension Drive {
     _restore: { _ in fatalError() },
     _fetch: { _,_ in fatalError() },
     _download: { _,_ in fatalError() },
-    _upload: { _,_,_ in fatalError() },
+    _upload: { _,_,_,_ in fatalError() },
     _authorize: { _,_ in fatalError() },
     _signIn: { _,_,_,_ in fatalError() }
   )
@@ -180,14 +181,26 @@ extension Drive {
         completion(.success(file))
       }
     },
-    _upload: { fileName, data, completion in
-      let file = GTLRDrive_File(json: [
-        "name":"\(fileName)",
-        "parents": ["appDataFolder"],
-        "mimeType": "application/octet-stream"
-      ])
-      let params = GTLRUploadParameters(data: data, mimeType: "application/octet-stream")
-      let query = GTLRDriveQuery_FilesCreate.query(withObject: file, uploadParameters: params)
+    _upload: { fileId, fileName, data, completion in
+      let query: GTLRDriveQuery
+      let params = GTLRUploadParameters(
+        data: data,
+        mimeType: "application/octet-stream"
+      )
+      if let fileId {
+        query = GTLRDriveQuery_FilesUpdate.query(
+          withObject: GTLRDrive_File(),
+          fileId: fileId,
+          uploadParameters: params
+        )
+      } else {
+        query = GTLRDriveQuery_FilesCreate.query(
+          withObject: GTLRDrive_File(json: [
+            "name":"\(fileName)",
+            "parents": ["appDataFolder"],
+            "mimeType": "application/octet-stream"
+          ]), uploadParameters: params)
+      }
       query.fields = "size, modifiedTime"
       service.executeQuery(query) { _, result, error in
         if let error {

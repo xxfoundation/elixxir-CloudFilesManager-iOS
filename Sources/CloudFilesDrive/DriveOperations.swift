@@ -50,14 +50,24 @@ extension Upload {
     client: Drive = .live
   ) -> Upload {
     Upload { data, completion in
-      client.restore {
-        switch $0 {
+      client.restore { restoreResult in
+        switch restoreResult {
         case .success:
-          client.upload(
-            fileName: fileName,
-            input: data,
-            completion: completion
-          )
+          client.fetch(fileName: fileName) { fetchResult in
+            var fileId: String?
+            switch fetchResult {
+            case .success(let metadata):
+              fileId = metadata?.id
+            case .failure:
+              break
+            }
+            client.upload(
+              fileId: fileId,
+              fileName: fileName,
+              input: data,
+              completion: completion
+            )
+          }
         case .failure(let error):
           completion(.failure(error))
         }
