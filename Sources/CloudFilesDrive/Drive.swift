@@ -148,11 +148,15 @@ extension Drive {
           completion(.failure(DriveError.fetch(error)))
           return
         }
-        guard let metadata = (result as? GTLRDrive_FileList)?.files?.first,
+        guard let listMetadata = (result as? GTLRDrive_FileList)?.files else {
+          completion(.failure(DriveError.unknown))
+          return
+        }
+        guard let metadata = listMetadata.first,
               let date = metadata.modifiedTime?.date,
               let size = metadata.size?.floatValue,
               let id = metadata.identifier else {
-          completion(.failure(DriveError.unknown))
+          completion(.success(nil))
           return
         }
         completion(.success(.init(
