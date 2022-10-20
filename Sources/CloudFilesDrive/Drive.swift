@@ -139,7 +139,7 @@ extension Drive {
       let query = GTLRDriveQuery_FilesList.query()
       query.q = "name = '\(fileName)'"
       query.spaces = "appDataFolder"
-      query.fields = "files(id, size, modifiedTime)"
+      query.fields = "files(name, id, size, modifiedTime)"
       service.executeQuery(query) { _, result, error in
         if let error {
           if (error as NSError).domain == kGTLRErrorObjectDomain, (error as NSError).code == 404 {
@@ -183,31 +183,33 @@ extension Drive {
     },
     _upload: { fileId, fileName, data, completion in
       let query: GTLRDriveQuery
-      let params = GTLRUploadParameters(
-        data: data,
-        mimeType: "application/octet-stream"
-      )
       if let fileId {
         query = GTLRDriveQuery_FilesUpdate.query(
           withObject: GTLRDrive_File(),
           fileId: fileId,
-          uploadParameters: params
-        )
+          uploadParameters: GTLRUploadParameters(
+            data: data,
+            mimeType: "application/octet-stream"
+          ))
       } else {
         query = GTLRDriveQuery_FilesCreate.query(
           withObject: GTLRDrive_File(json: [
             "name":"\(fileName)",
             "parents": ["appDataFolder"],
             "mimeType": "application/octet-stream"
-          ]), uploadParameters: params)
+          ]), uploadParameters: GTLRUploadParameters(
+            data: data,
+            mimeType: "application/octet-stream"
+          ))
       }
-      query.fields = "size, modifiedTime"
+      query.fields = "size, id, modifiedTime"
       service.executeQuery(query) { _, result, error in
         if let error {
           completion(.failure(DriveError.upload(error)))
           return
         }
         guard let file = result as? GTLRDrive_File,
+              let fid = file.identifier,
               let size = file.size?.floatValue,
               let date = file.modifiedTime?.date else {
           completion(.failure(DriveError.unknown))
