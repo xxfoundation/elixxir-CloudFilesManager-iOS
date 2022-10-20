@@ -1,6 +1,5 @@
 import UIKit
 import CloudFiles
-import FilesProvider
 
 public struct ICloud {
   typealias DownloadCompletion = (Result<Data?, Swift.Error>) -> Void
@@ -11,13 +10,7 @@ public struct ICloud {
     case unknown
     case unauthorized
     case fetch(Error)
-    case upload(Error)
-    case download(Error)
   }
-
-  static let documentsProvider = CloudFileProvider(
-    containerId: "iCloud.xxm-cloud", scope: .data
-  )
 
   var _link: () -> Void
   var _isLinked: () -> Bool
@@ -76,61 +69,64 @@ extension ICloud {
         FileManager.default.ubiquityIdentityToken != nil
       },
       _fetch: { fileName, completion in
-        guard let documentsProvider else {
+        let manager = FileManager.default
+        guard let url = manager.url(forUbiquityContainerIdentifier: nil) else {
           completion(.failure(ICloudError.unauthorized))
           return
         }
-        documentsProvider.contentsOfDirectory(path: "/") { contents, error in
-          if let error {
+        let fileURL: URL = url.appendingPathComponent(fileName)
+        if manager.contents(atPath: fileURL.path) == nil {
+          do {
+            try manager.startDownloadingUbiquitousItem(at: fileURL)
+            if manager.contents(atPath: url.appendingPathComponent(".\(fileName).icloud").path) != nil {
+              while(manager.contents(atPath: fileURL.path) == nil) {
+                sleep(1)
+              }
+            }
+          } catch {
             completion(.failure(ICloudError.fetch(error)))
             return
           }
-          guard let file = contents.first(where: { $0.name == fileName }) else {
-            completion(.success(nil))
-            return
-          }
-          completion(.success(.init(
-            size: Float(file.size),
-            lastModified: file.modifiedDate!
-          )))
         }
+        guard let file = manager.contents(atPath: fileURL.path),
+              let createdAt = try? fileURL.resourceValues(forKeys: [.creationDateKey]).creationDate else {
+          completion(.success(nil))
+          return
+        }
+        let modifiedDate = try? fileURL
+          .resourceValues(forKeys: [.contentModificationDateKey])
+          .contentModificationDate
+        completion(.success(.init(
+          size: Float(file.count),
+          lastModified: modifiedDate ?? createdAt
+        )))
       },
-      _download: { path, completion in
-        guard let documentsProvider else {
+      _download: { fileName, completion in
+        let manager = FileManager.default
+        guard let url = manager.url(forUbiquityContainerIdentifier: nil) else {
           completion(.failure(ICloudError.unauthorized))
           return
         }
-        documentsProvider.contents(path: path) { contents, error in
-          if let error {
-            completion(.failure(ICloudError.download(error)))
-            return
-          }
-          guard let contents else {
-            completion(.failure(ICloudError.unknown))
-            return
-          }
-          completion(.success(contents))
+        guard let data = manager.contents(atPath: url.appendingPathComponent(fileName).path) else {
+          completion(.failure(ICloudError.unknown))
+          return
         }
+        completion(.success(data))
       },
-      _upload: { filePath, data, completion in
-        guard let documentsProvider else {
+      _upload: { fileName, data, completion in
+        let manager = FileManager.default
+        guard let url = manager.url(forUbiquityContainerIdentifier: nil) else {
           completion(.failure(ICloudError.unauthorized))
           return
         }
-        documentsProvider.writeContents(
-          path: filePath,
-          contents: data,
-          overwrite: true
-        ) { error in
-          if let error {
-            completion(.failure(ICloudError.upload(error)))
-            return
-          }
-          completion(.success(.init(
-            size: Float(data.count),
-            lastModified: Date()
-          )))
-        }
+        let _ = manager.createFile(
+          atPath: url.appendingPathComponent(fileName).path,
+          contents: data
+        )
+        completion(.success(.init(
+          size: Float(data.count),
+          lastModified: Date()
+        )))
       }
     )
   }
