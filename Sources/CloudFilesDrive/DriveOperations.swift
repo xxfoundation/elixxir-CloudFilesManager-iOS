@@ -2,12 +2,6 @@ import UIKit
 import CloudFiles
 import GoogleSignIn
 
-public func restoreIfPossible() {
-  if GIDSignIn.sharedInstance.hasPreviousSignIn() {
-    GIDSignIn.sharedInstance.restorePreviousSignIn()
-  }
-}
-
 extension Unlink {
   public static func drive(
     client: Drive = .live

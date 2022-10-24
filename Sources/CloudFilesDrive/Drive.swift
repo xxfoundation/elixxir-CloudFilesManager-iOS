@@ -105,8 +105,10 @@ extension Drive {
       GIDSignIn.sharedInstance.signOut()
     },
     _isLinked: {
-      guard GIDSignIn.sharedInstance.hasPreviousSignIn(),
-            let currentUser = GIDSignIn.sharedInstance.currentUser,
+      if GIDSignIn.sharedInstance.hasPreviousSignIn() {
+        GIDSignIn.sharedInstance.restorePreviousSignIn()
+      }
+      guard let currentUser = GIDSignIn.sharedInstance.currentUser,
             let scopes = currentUser.grantedScopes,
             scopes.contains(kGTLRAuthScopeDriveFile),
             scopes.contains(kGTLRAuthScopeDriveAppdata) else {
