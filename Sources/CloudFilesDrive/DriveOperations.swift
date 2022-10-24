@@ -1,5 +1,6 @@
 import UIKit
 import CloudFiles
+import GoogleSignIn
 
 extension Unlink {
   public static func drive(
@@ -43,11 +44,28 @@ extension Upload {
     client: Drive = .live
   ) -> Upload {
     Upload { data, completion in
-      client.upload(
-        fileName: fileName,
-        input: data,
-        completion: completion
-      )
+      client.restore { restoreResult in
+        switch restoreResult {
+        case .success:
+          client.fetch(fileName: fileName) { fetchResult in
+            var fileId: String?
+            switch fetchResult {
+            case .success(let metadata):
+              fileId = metadata?.id
+            case .failure:
+              break
+            }
+            client.upload(
+              fileId: fileId,
+              fileName: fileName,
+              input: data,
+              completion: completion
+            )
+          }
+        case .failure(let error):
+          completion(.failure(error))
+        }
+      }
     }
   }
 }
@@ -57,11 +75,18 @@ extension Fetch {
     client: Drive = .live,
     fileName: String
   ) -> Fetch {
-    Fetch {
-      client.fetch(
-        fileName: fileName,
-        completion: $0
-      )
+    Fetch { completion in
+      client.restore {
+        switch $0 {
+        case .success:
+          client.fetch(
+            fileName: fileName,
+            completion: completion
+          )
+        case .failure(let error):
+          completion(.failure(error))
+        }
+      }
     }
   }
 }

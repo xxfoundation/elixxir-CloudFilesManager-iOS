@@ -39,10 +39,13 @@ extension Link {
 
 extension IsLinked {
   public static func dropbox(
+    appKey: String,
     client: Dropbox = .live()
   ) -> IsLinked {
     IsLinked {
-      client.isLinked()
+      client.isLinked(
+        appKey: appKey
+      )
     }
   }
 }

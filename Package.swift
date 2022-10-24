@@ -40,10 +40,6 @@ let package = Package(
       .upToNextMajor(from: "9.0.0")
     ),
     .package(
-      url: "https://github.com/amosavian/FileProvider.git",
-      .upToNextMajor(from: "0.26.0")
-    ),
-    .package(
       url: "https://github.com/darrarski/Shout.git",
       revision: "df5a662293f0ac15eeb4f2fd3ffd0c07b73d0de0"
     ),
@@ -87,10 +83,6 @@ let package = Package(
       dependencies: [
         .target(
           name: "CloudFiles"
-        ),
-        .product(
-          name: "FilesProvider",
-          package: "FileProvider"
         )
       ]
     ),

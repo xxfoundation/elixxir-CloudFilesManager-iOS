@@ -13,6 +13,9 @@ final class DriveFetchTests: XCTestCase {
       lastModified: Date.distantPast
     )
     var client: Drive = .unimplemented
+    client._restore = { completion in
+      completion(.success(()))
+    }
     client._fetch = { fileName, completion in
       didFetchWithFileName = fileName
       completion(.success(mockMetadata))

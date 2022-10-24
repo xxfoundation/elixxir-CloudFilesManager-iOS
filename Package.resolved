@@ -28,15 +28,6 @@
       }
     },
     {
-      "identity" : "fileprovider",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/amosavian/FileProvider.git",
-      "state" : {
-        "revision" : "abf68a62541a4193c8d106367ddb3648e8ab693f",
-        "version" : "0.26.0"
-      }
-    },
-    {
       "identity" : "google-api-objectivec-client-for-rest",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/google-api-objectivec-client-for-rest",
