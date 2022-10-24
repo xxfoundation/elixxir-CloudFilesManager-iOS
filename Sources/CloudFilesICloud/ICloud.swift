@@ -77,12 +77,28 @@ extension ICloud {
         let fileURL: URL = url.appendingPathComponent(fileName)
         if manager.contents(atPath: fileURL.path) == nil {
           do {
-            try manager.startDownloadingUbiquitousItem(at: fileURL)
-            if manager.contents(atPath: url.appendingPathComponent(".\(fileName).icloud").path) != nil {
-              while(manager.contents(atPath: fileURL.path) == nil) {
-                sleep(1)
+            let status = try fileURL.resourceValues(forKeys: [
+              .isUbiquitousItemKey,
+              .ubiquitousItemIsDownloadingKey,
+              .ubiquitousItemDownloadingStatusKey
+            ])
+
+            func observeDownload(status: URLResourceValues) throws {
+              if status.isUbiquitousItem ?? false {
+                if status.ubiquitousItemDownloadingStatus == .current {
+                  print("iCloud file is downloaded...")
+                } else if status.ubiquitousItemIsDownloading ?? false {
+                  try observeDownload(status: status)
+                } else {
+                  try manager.startDownloadingUbiquitousItem(at: fileURL)
+                  try observeDownload(status: status)
+                }
+              } else {
+                throw ICloudError.unknown
               }
             }
+
+            try observeDownload(status: status)
           } catch {
             completion(.failure(ICloudError.fetch(error)))
             return
