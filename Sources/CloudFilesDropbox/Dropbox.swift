@@ -18,7 +18,7 @@ public struct Dropbox {
   }
 
   var _unlink: () -> Void
-  var _isLinked: () -> Bool
+  var _isLinked: (String) -> Bool
   var _fetch: (String, @escaping FetchCompletion) -> Void
   var _link: (String, UIViewController, UIApplication) -> Void
   var _download: (String, @escaping DownloadCompletion) -> Void
@@ -28,8 +28,8 @@ public struct Dropbox {
     _unlink()
   }
 
-  func isLinked() -> Bool {
-    _isLinked()
+  func isLinked(appKey: String) -> Bool {
+    _isLinked(appKey)
   }
 
   func fetch(
@@ -66,7 +66,7 @@ public struct Dropbox {
 extension Dropbox {
   public static let unimplemented: Dropbox = .init(
     _unlink: { fatalError() },
-    _isLinked: { fatalError() },
+    _isLinked: { _ in fatalError() },
     _fetch: { _,_ in fatalError() },
     _link: { _,_,_ in fatalError() },
     _download: { _,_ in fatalError() },
@@ -78,8 +78,11 @@ extension Dropbox {
       _unlink: {
         DropboxClientsManager.unlinkClients()
       },
-      _isLinked: {
-        DropboxClientsManager.authorizedClient != nil
+      _isLinked: { appKey in
+        if DropboxOAuthManager.sharedOAuthManager == nil {
+          DropboxClientsManager.setupWithAppKey(appKey)
+        }
+        return DropboxClientsManager.authorizedClient != nil
       },
       _fetch: { path, completion in
         guard let client = DropboxClientsManager.authorizedClient else {
@@ -179,7 +182,7 @@ extension CloudFilesManager {
       upload: .dropbox(path: path),
       unlink: .dropbox(),
       download: .dropbox(path: path),
-      isLinked: .dropbox()
+      isLinked: .dropbox(appKey: appKey)
     )
   }
 }
