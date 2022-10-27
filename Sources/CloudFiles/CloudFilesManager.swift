@@ -24,6 +24,12 @@ public struct CloudFilesManager {
 }
 
 public extension CloudFilesManager {
+  static var all: [CloudService: CloudFilesManager] = [:]
+  static subscript(service: CloudService) -> CloudFilesManager {
+    get { all[service] ?? .unimplemented }
+    set { all[service] = newValue }
+  }
+
   static let unimplemented: CloudFilesManager = .init(
     link: .unimplemented,
     fetch: .unimplemented,
