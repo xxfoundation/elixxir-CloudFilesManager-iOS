@@ -4,17 +4,20 @@ public struct CloudSettings: Equatable, Codable {
   public var wifiOnlyBackup: Bool
   public var automaticBackups: Bool
   public var enabledService: CloudService?
+  public var connectedServices: Set<CloudService>
   public var backups: [CloudService: Fetch.Metadata]
 
   public init(
     wifiOnlyBackup: Bool = false,
     automaticBackups: Bool = false,
     enabledService: CloudService? = nil,
+    connectedServices: Set<CloudService> = [],
     backups: [CloudService: Fetch.Metadata] = [:]
   ) {
     self.wifiOnlyBackup = wifiOnlyBackup
     self.automaticBackups = automaticBackups
     self.enabledService = enabledService
+    self.connectedServices = connectedServices
     self.backups = backups
   }
 
@@ -28,6 +31,7 @@ public struct CloudSettings: Equatable, Codable {
         wifiOnlyBackup: settings.wifiOnlyBackup,
         automaticBackups: settings.automaticBackups,
         enabledService: settings.enabledService,
+        connectedServices: settings.connectedServices,
         backups: settings.backups
       )
     } else {
@@ -35,6 +39,7 @@ public struct CloudSettings: Equatable, Codable {
         wifiOnlyBackup: false,
         automaticBackups: true,
         enabledService: nil,
+        connectedServices: [],
         backups: [:]
       )
     }

@@ -1,3 +1,5 @@
+import Foundation
+
 public struct CloudFilesManager {
   public var link: Link
   public var fetch: Fetch
@@ -25,6 +27,7 @@ public struct CloudFilesManager {
 
 public extension CloudFilesManager {
   static var all: [CloudService: CloudFilesManager] = [:]
+
   static subscript(service: CloudService) -> CloudFilesManager {
     get { all[service] ?? .unimplemented }
     set { all[service] = newValue }
@@ -38,4 +41,33 @@ public extension CloudFilesManager {
     download: .unimplemented,
     isLinked: .unimplemented
   )
+}
+
+extension [CloudService: CloudFilesManager] {
+  func linkedServices() -> [CloudService] {
+    self.filter { $0.value.isLinked() }.map(\.key)
+  }
+
+  func lastBackups(completion: @escaping ([CloudService: Fetch.Metadata]) -> Void) {
+    let group = DispatchGroup()
+    var backups: [CloudService: Fetch.Metadata] = [:]
+
+    self.filter { $0.value.isLinked() }.forEach { service, manager in
+      group.enter()
+      do {
+        try manager.fetch {
+          if let metadata = try? $0.get() {
+            backups[service] = metadata
+          }
+          group.leave()
+        }
+      } catch {
+        group.leave()
+      }
+    }
+
+    group.notify(queue: DispatchQueue.main) {
+      completion(backups)
+    }
+  }
 }
