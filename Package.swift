@@ -41,7 +41,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/darrarski/Shout.git",
-      revision: "df5a662293f0ac15eeb4f2fd3ffd0c07b73d0de0"
+      branch: "master"
     ),
     .package(
       url: "https://github.com/kishikawakatsumi/KeychainAccess",
