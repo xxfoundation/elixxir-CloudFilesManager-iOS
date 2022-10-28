@@ -107,6 +107,8 @@ try iCloudManager.download {
 ```
 You can also use the static variables defined in the repository:
 ```swift
+import CloudFiles
+
 let linkedServices = CloudFilesManager.all.linkedServices()
 
 CloudFilesManager.all.lastBackups {
@@ -121,6 +123,7 @@ Open `Package.swift` in Xcode (≥14).
 
 ```
 xxm-cloud-providers [Swift Package]
+├─ CloudFiles [Library]
 ├─ CloudFilesSFTP [Library]
 ├─ CloudFilesDrive [Library]
 ├─ CloudFilesICloud [Library]
