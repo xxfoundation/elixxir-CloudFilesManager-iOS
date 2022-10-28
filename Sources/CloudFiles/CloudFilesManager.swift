@@ -71,38 +71,3 @@ public extension [CloudService: CloudFilesManager] {
     }
   }
 }
-
-public extension CloudService {
-  func backup(data: Data, completion: @escaping (Result<Upload.Metadata, Error>) -> Void) {
-    do {
-      try CloudFilesManager.all[self]!.upload(data) {
-        switch $0 {
-        case .success(let metadata):
-          completion(.success(metadata))
-        case .failure(let error):
-          completion(.failure(error))
-        }
-      }
-    } catch {
-      completion(.failure(error))
-    }
-  }
-
-  func authorize(
-    presenting controller: UIViewController,
-    completion: @escaping (Result<Void, Error>) -> Void
-  ) {
-    do {
-      try CloudFilesManager.all[self]!.link(controller) {
-        switch $0 {
-        case .success:
-          completion(.success(()))
-        case .failure(let error):
-          completion(.failure(error))
-        }
-      }
-    } catch {
-      completion(.failure(error))
-    }
-  }
-}

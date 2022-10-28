@@ -5,20 +5,17 @@ public struct CloudSettings: Equatable, Codable {
   public var automaticBackups: Bool
   public var enabledService: CloudService?
   public var connectedServices: Set<CloudService>
-  public var backups: [CloudService: Fetch.Metadata]
 
   public init(
     wifiOnlyBackup: Bool = false,
     automaticBackups: Bool = false,
     enabledService: CloudService? = nil,
-    connectedServices: Set<CloudService> = [],
-    backups: [CloudService: Fetch.Metadata] = [:]
+    connectedServices: Set<CloudService> = []
   ) {
     self.wifiOnlyBackup = wifiOnlyBackup
     self.automaticBackups = automaticBackups
     self.enabledService = enabledService
     self.connectedServices = connectedServices
-    self.backups = backups
   }
 
   public func toData() -> Data {
@@ -31,16 +28,14 @@ public struct CloudSettings: Equatable, Codable {
         wifiOnlyBackup: settings.wifiOnlyBackup,
         automaticBackups: settings.automaticBackups,
         enabledService: settings.enabledService,
-        connectedServices: settings.connectedServices,
-        backups: settings.backups
+        connectedServices: settings.connectedServices
       )
     } else {
       self.init(
         wifiOnlyBackup: false,
         automaticBackups: true,
         enabledService: nil,
-        connectedServices: [],
-        backups: [:]
+        connectedServices: []
       )
     }
   }
