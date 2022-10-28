@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 public struct CloudFilesManager {
   public var link: Link
@@ -43,15 +43,16 @@ public extension CloudFilesManager {
   )
 }
 
-extension [CloudService: CloudFilesManager] {
-  func linkedServices() -> [CloudService] {
-    self.filter { $0.value.isLinked() }.map(\.key)
+public extension [CloudService: CloudFilesManager] {
+  func linkedServices() -> Set<CloudService> {
+    Set(self.filter { $0.value.isLinked() }.map(\.key))
   }
 
-  func lastBackups(completion: @escaping ([CloudService: Fetch.Metadata]) -> Void) {
+  func lastBackups(
+    completion: @escaping ([CloudService: Fetch.Metadata]) -> Void
+  ) {
     let group = DispatchGroup()
     var backups: [CloudService: Fetch.Metadata] = [:]
-
     self.filter { $0.value.isLinked() }.forEach { service, manager in
       group.enter()
       do {
@@ -65,9 +66,43 @@ extension [CloudService: CloudFilesManager] {
         group.leave()
       }
     }
-
     group.notify(queue: DispatchQueue.main) {
       completion(backups)
+    }
+  }
+}
+
+public extension CloudService {
+  func backup(data: Data, completion: @escaping (Result<Upload.Metadata, Error>) -> Void) {
+    do {
+      try CloudFilesManager.all[self]!.upload(data) {
+        switch $0 {
+        case .success(let metadata):
+          completion(.success(metadata))
+        case .failure(let error):
+          completion(.failure(error))
+        }
+      }
+    } catch {
+      completion(.failure(error))
+    }
+  }
+
+  func authorize(
+    presenting controller: UIViewController,
+    completion: @escaping (Result<Void, Error>) -> Void
+  ) {
+    do {
+      try CloudFilesManager.all[self]!.link(controller) {
+        switch $0 {
+        case .success:
+          completion(.success(()))
+        case .failure(let error):
+          completion(.failure(error))
+        }
+      }
+    } catch {
+      completion(.failure(error))
     }
   }
 }
