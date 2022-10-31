@@ -73,21 +73,12 @@
       }
     },
     {
-      "identity" : "libssh2prebuild",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DimaRU/Libssh2Prebuild.git",
-      "state" : {
-        "branch" : "1.10.0+OpenSSL_1_1_1o",
-        "revision" : "a91bcf205a6cbc84144f840c44145656abbd266a"
-      }
-    },
-    {
       "identity" : "shout",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/darrarski/Shout.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "df5a662293f0ac15eeb4f2fd3ffd0c07b73d0de0"
+        "revision" : "dbb02940a3a96c2f126079891589902a562d0e8d",
+        "version" : "0.5.4"
       }
     },
     {
