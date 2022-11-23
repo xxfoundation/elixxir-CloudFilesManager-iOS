@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/darrarski/Shout.git",
       "state" : {
-        "revision" : "dbb02940a3a96c2f126079891589902a562d0e8d",
-        "version" : "0.5.4"
+        "revision" : "cda197619ac395b9a2c3ddd1c6c8fad16114b830",
+        "version" : "0.5.5"
       }
     },
     {
